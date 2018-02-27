@@ -24,6 +24,8 @@ SOFTWARE.
 
 */
 using System;
+using System.Net;
+using System.Text;
 using Flux.Client.Datagram;
 using Piot.Brisk.Commands;
 using Piot.Brisk.Serializers;
@@ -33,7 +35,7 @@ using Piot.Brook.Shared;
 
 namespace Piot.Brisk
 {
-	public class Connector
+	public class Connector : IPacketReceiver
 	{
 		enum State
 		{
@@ -53,7 +55,7 @@ namespace Piot.Brisk
 
 		public void Connect(string host, int port)
 		{
-			udpClient = new Client(host, port);
+			udpClient = new Client(host, port, this);
 		}
 
 		void WriteHeader(IOutOctetStream outStream, byte mode, byte sequence, ushort connectionId)
@@ -100,8 +102,25 @@ namespace Piot.Brisk
 
 			if (octetsToSend.Length > 0)
 			{
+				Console.WriteLine($"Sending packet {ByteArrayToString(octetsToSend)}");
 				udpClient.Send(octetsToSend);
 			}
+		}
+
+		static string ByteArrayToString(byte[] ba)
+		{
+			StringBuilder hex = new StringBuilder(ba.Length * 2);
+
+			foreach (byte b in ba)
+			{
+				hex.AppendFormat("{0:x2}", b);
+			}
+			return hex.ToString();
+		}
+
+		public void ReceivePacket(byte[] octets, IPEndPoint fromEndpoint)
+		{
+			Console.WriteLine($"Received packet {ByteArrayToString(octets)}");
 		}
 	}
 }
