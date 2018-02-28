@@ -23,12 +23,13 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
 */
+﻿using System;
+using Piot.Brook;
 
-namespace Piot.Brisk.Serializers
+namespace Piot.Brisk.Connect
 {
-    public static class CommandValues
+	public interface IReceiveStream
 	{
-		public const byte ChallengeRequest = 0x01;
-		public const byte ChallengeResponse = 0x02;
+		void Receive(IInOctetStream stream);
 	}
 }

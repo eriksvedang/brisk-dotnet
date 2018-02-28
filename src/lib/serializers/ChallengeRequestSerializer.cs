@@ -32,7 +32,7 @@ namespace Piot.Brisk.Serializers
 	{
 		public static void Serialize(IOutOctetStream stream, ChallengeRequest cmd)
 		{
-			stream.WriteUint8(CommandValues.Challenge);
+			stream.WriteUint8(CommandValues.ChallengeRequest);
 			stream.WriteUint32(cmd.Nonce);
 		}
 	}

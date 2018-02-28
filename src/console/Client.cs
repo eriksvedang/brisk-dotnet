@@ -24,18 +24,24 @@ SOFTWARE.
 
 */
 using System;
-using Piot.Brisk;
+using Piot.Brisk.Connect;
+using Piot.Brook;
 
 namespace BriskConsole
 {
-	class Client
+	class Client : IReceiveStream
 	{
 		Connector connector;
 
 		public Client(string hostname, int port)
 		{
-			connector = new Connector();
+			connector = new Connector(this);
 			connector.Connect(hostname, port);
+		}
+
+		public void Receive(IInOctetStream stream)
+		{
+			Console.WriteLine("Received unknown stream");
 		}
 
 		public void Update()
