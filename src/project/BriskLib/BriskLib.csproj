@@ -1,0 +1,33 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <BaseDirectory>..\..\lib</BaseDirectory>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="..\..\lib\Connector.cs" />
+    <Compile Include="..\..\lib\commands\ChallengeRequest.cs">
+      <Link>commands\ChallengeRequest.cs</Link>
+    </Compile>
+    <Compile Include="..\..\lib\serializers\ChallengeRequestSerializer.cs">
+      <Link>serializers\ChallengeRequestSerializer.cs</Link>
+    </Compile>
+    <Compile Include="..\..\lib\serializers\CommandValues.cs">
+      <Link>serializers\CommandValues.cs</Link>
+    </Compile>
+    <Compile Include="..\..\lib\RandomGenerator.cs" />
+    <Compile Include="..\..\lib\IReceiveStream.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="fluxdatagram">
+      <HintPath>..\..\assemblies\fluxdatagram.dll</HintPath>
+    </Reference>
+    <Reference Include="BrookLib">
+      <HintPath>..\..\assemblies\BrookLib.dll</HintPath>
+    </Reference>
+    <Reference Include="tend">
+      <HintPath>..\..\assemblies\tend.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+</Project>

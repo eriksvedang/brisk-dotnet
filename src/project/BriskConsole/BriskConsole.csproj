@@ -1,0 +1,31 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>netcoreapp2.0</TargetFramework>
+    <BaseDirectory>..\..\console</BaseDirectory>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="..\..\console\Program.cs">
+      <Link>Program.cs</Link>
+    </Compile>
+    <Compile Include="..\..\console\Client.cs">
+      <Link>Client.cs</Link>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\BriskLib\BriskLib.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="fluxdatagram">
+      <HintPath>..\..\assemblies\fluxdatagram.dll</HintPath>
+    </Reference>
+    <Reference Include="BrookLib">
+      <HintPath>..\..\assemblies\BrookLib.dll</HintPath>
+    </Reference>
+    <Reference Include="tend">
+      <HintPath>..\..\assemblies\tend.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+</Project>

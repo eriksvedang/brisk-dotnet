@@ -1,0 +1,23 @@
+
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2012
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BriskLib", "BriskLib\BriskLib.csproj", "{96A2ED31-8C0B-4297-BEA5-E3AC622B847F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BriskConsole", "BriskConsole\BriskConsole.csproj", "{51F80DC2-D1EB-4B71-A5F1-39455A7DB440}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{96A2ED31-8C0B-4297-BEA5-E3AC622B847F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{96A2ED31-8C0B-4297-BEA5-E3AC622B847F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{96A2ED31-8C0B-4297-BEA5-E3AC622B847F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{96A2ED31-8C0B-4297-BEA5-E3AC622B847F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{51F80DC2-D1EB-4B71-A5F1-39455A7DB440}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{51F80DC2-D1EB-4B71-A5F1-39455A7DB440}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{51F80DC2-D1EB-4B71-A5F1-39455A7DB440}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{51F80DC2-D1EB-4B71-A5F1-39455A7DB440}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
