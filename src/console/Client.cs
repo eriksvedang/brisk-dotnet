@@ -1,4 +1,4 @@
-/*
+﻿/*
 
 MIT License
 
@@ -41,7 +41,7 @@ namespace BriskConsole
 
 		public void Receive(IInOctetStream stream)
 		{
-			Console.WriteLine("Received unknown stream");
+			Console.Error.WriteLine("Received unknown stream");
 		}
 
 		public void Update()

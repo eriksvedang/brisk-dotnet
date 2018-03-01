@@ -1,4 +1,4 @@
-/*
+﻿/*
 
 MIT License
 
@@ -59,7 +59,7 @@ namespace BriskConsole
 
 		static void Main(string[] args)
 		{
-			Console.WriteLine("Brisk Console v0.1");
+			Console.Error.WriteLine("Brisk Console v0.1");
 
 			if (args.Length < 1)
 			{
@@ -69,7 +69,7 @@ namespace BriskConsole
 			string hostname;
 			int port;
 			ParseHostString(hostString, out hostname, out port);
-			Console.WriteLine($"Trying to connect to '{hostname}' {port}");
+			Console.Error.WriteLine($"Trying to connect to '{hostname}' {port}");
 			var client = new Client(hostname, port);
 
 			while (true)

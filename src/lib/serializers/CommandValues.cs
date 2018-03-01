@@ -26,7 +26,7 @@ SOFTWARE.
 
 namespace Piot.Brisk.Serializers
 {
-    public static class CommandValues
+	public static class CommandValues
 	{
 		public const byte ChallengeRequest = 0x01;
 		public const byte ChallengeResponse = 0x02;

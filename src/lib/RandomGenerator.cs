@@ -23,7 +23,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
 */
-﻿using System;
+﻿ using System;
 using System.Security.Cryptography;
 
 namespace Piot.Brisk.Commands
@@ -32,19 +32,19 @@ namespace Piot.Brisk.Commands
 	{
 		public static uint RandomUInt()
 		{
-            var randomOctets = GenerateRandomOctets(sizeof(uint));
+			var randomOctets = GenerateRandomOctets(sizeof(uint));
 
 			return BitConverter.ToUInt32(randomOctets, 0);
 		}
 
-        static byte[] GenerateRandomOctets(int octetCount)
+		static byte[] GenerateRandomOctets(int octetCount)
 		{
 			var csp = new RNGCryptoServiceProvider();
 			var buffer = new byte[octetCount];
 
 			csp.GetBytes(buffer);
-			
-            return buffer;
+
+			return buffer;
 		}
 	}
 }

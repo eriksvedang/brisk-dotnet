@@ -1,4 +1,4 @@
-/*
+﻿/*
 
 MIT License
 
@@ -37,27 +37,27 @@ using Piot.Tend.Client;
 
 namespace Piot.Brisk.Connect
 {
+	public enum ConnectionState
+	{
+		Connecting,
+		WaitingForChallengeResponse,
+		Connected
+	}
+
 	public class Connector : IPacketReceiver
 	{
-		enum State
-		{
-			Connecting,
-			WaitingForChallengeResponse,
-			Connected
-		}
-
 		const byte NormalMode = 0x01;
 
-		State state = State.Connecting;
+		ConnectionState state = ConnectionState.Connecting;
 		Client udpClient;
 		byte outSequenceNumber = 0;
 		uint challengeNonce;
 		ushort connectionId;
 		SequenceId lastIncomingSequence = SequenceId.Max;
 		SequenceId outgoingSequenceNumber = SequenceId.Max;
-		DateTime lastStateChange = DateTime.UtcNow;
 		Queue<byte[]> messageQueue = new Queue<byte[]>();
 		IReceiveStream receiveStream;
+		DateTime lastStateChange = DateTime.UtcNow;
 
 		public Connector(IReceiveStream receiveStream)
 		{
@@ -82,8 +82,46 @@ namespace Piot.Brisk.Connect
 			var challenge = new ChallengeRequest(challengeNonce);
 
 			ChallengeRequestSerializer.Serialize(outStream, challenge);
-			state = State.WaitingForChallengeResponse;
+			state = ConnectionState.WaitingForChallengeResponse;
 			lastStateChange = DateTime.UtcNow;
+		}
+
+		void SendOneUpdatePacket(IOutOctetStream octetStream)
+		{
+			if (messageQueue.Count > 0)
+			{
+				outgoingSequenceNumber = outgoingSequenceNumber.Next();
+				WriteHeader(octetStream, NormalMode, outgoingSequenceNumber.Value, connectionId);
+				var packetOctets = messageQueue.Dequeue();
+				Console.Error.WriteLine($"Sending app octets {ByteArrayToString(packetOctets)}");
+				octetStream.WriteOctets(packetOctets);
+			}
+		}
+
+		void SendOnePacket()
+		{
+			var octetQueue = new OctetQueue(500);
+			var octetStream = new OutOctetStream();
+
+			switch (state)
+			{
+			case ConnectionState.Connecting:
+				WriteHeader(octetStream, NormalMode, outSequenceNumber++, 0);
+				UpdateConnecting(octetStream);
+				break;
+			case ConnectionState.Connected:
+				SendOneUpdatePacket(octetStream);
+
+				break;
+			}
+
+			var octetsToSend = octetStream.Close();
+
+			if (octetsToSend.Length > 0)
+			{
+				// Console.Error.WriteLine($"Sending packet {ByteArrayToString(octetsToSend)}");
+				udpClient.Send(octetsToSend);
+			}
 		}
 
 		public void Update()
@@ -94,37 +132,19 @@ namespace Piot.Brisk.Connect
 			{
 				return;
 			}
-			lastStateChange = DateTime.UtcNow;
-
-			Console.WriteLine("Pulse!");
-			var octetQueue = new OctetQueue(500);
-			var octetStream = new OutOctetStream();
-
-			switch (state)
+			while (true)
 			{
-			case State.Connecting:
-				WriteHeader(octetStream, NormalMode, outSequenceNumber++, 0);
-				UpdateConnecting(octetStream);
-				break;
-			case State.Connected:
+				SendOnePacket();
 
-				if (messageQueue.Count > 0)
+				if (state != ConnectionState.Connected)
 				{
-					outgoingSequenceNumber = outgoingSequenceNumber.Next();
-					WriteHeader(octetStream, NormalMode, outgoingSequenceNumber.Value, connectionId);
-					var packetOctets = messageQueue.Dequeue();
-					octetStream.WriteOctets(packetOctets);
+					break;
 				}
 
-				break;
-			}
-
-			var octetsToSend = octetStream.Close();
-
-			if (octetsToSend.Length > 0)
-			{
-				Console.WriteLine($"Sending packet {ByteArrayToString(octetsToSend)}");
-				udpClient.Send(octetsToSend);
+				if (messageQueue.Count == 0)
+				{
+					break;
+				}
 			}
 		}
 
@@ -144,20 +164,20 @@ namespace Piot.Brisk.Connect
 			var nonce = stream.ReadUint32();
 			var assignedConnectionId = stream.ReadUint16();
 
-			Console.WriteLine($"Challenge response {nonce:X} {assignedConnectionId:X}");
+			Console.Error.WriteLine($"Challenge response {nonce:X} {assignedConnectionId:X}");
 
 			if (nonce == challengeNonce)
 			{
-				Console.WriteLine($"We have a connection! {assignedConnectionId}");
+				Console.Error.WriteLine($"We have a connection! {assignedConnectionId}");
 				this.connectionId = assignedConnectionId;
-				state = State.Connected;
+				state = ConnectionState.Connected;
 				lastStateChange = DateTime.UtcNow;
 			}
 		}
 
 		void ReadOOB(IInOctetStream stream)
 		{
-			Console.WriteLine("OOB Packet");
+			Console.Error.WriteLine("OOB Packet");
 			var cmd = stream.ReadUint8();
 			switch (cmd)
 			{
@@ -171,7 +191,7 @@ namespace Piot.Brisk.Connect
 
 		void ReadConnectionPacket(IInOctetStream stream)
 		{
-			Console.WriteLine("Connection packet!");
+			Console.Error.WriteLine("Connection packet!");
 			receiveStream.Receive(stream);
 		}
 
@@ -206,7 +226,7 @@ namespace Piot.Brisk.Connect
 					}
 					else
 					{
-						Console.WriteLine($"Warning: out of sequence! expected {lastIncomingSequence.Next()} but received {headerSequenceId}");
+						Console.Error.WriteLine($"Warning: out of sequence! expected {lastIncomingSequence.Next()} but received {headerSequenceId}");
 					}
 				}
 			}
@@ -214,7 +234,7 @@ namespace Piot.Brisk.Connect
 
 		public void ReceivePacket(byte[] octets, IPEndPoint fromEndpoint)
 		{
-			Console.WriteLine($"Received packet {ByteArrayToString(octets)}");
+			Console.Error.WriteLine($"Received packet {ByteArrayToString(octets)}");
 			var stream = new InOctetStream(octets);
 			var mode = stream.ReadUint8();
 			switch (mode)
@@ -224,6 +244,14 @@ namespace Piot.Brisk.Connect
 				break;
 			default:
 				throw new Exception($"Unknown mode {mode}");
+			}
+		}
+
+		public ConnectionState ConnectionState
+		{
+			get
+			{
+				return state;
 			}
 		}
 	}
