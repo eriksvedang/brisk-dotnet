@@ -24,8 +24,11 @@
     <Reference Include="BrookLib">
       <HintPath>..\..\assemblies\BrookLib.dll</HintPath>
     </Reference>
-    <Reference Include="tend">
-      <HintPath>..\..\assemblies\tend.dll</HintPath>
+    <Reference Include="FluxLib">
+      <HintPath>..\..\assemblies\FluxLib.dll</HintPath>
+    </Reference>
+    <Reference Include="Piot.Tend">
+      <HintPath>..\..\assemblies\Piot.Tend.dll</HintPath>
     </Reference>
   </ItemGroup>
 </Project>

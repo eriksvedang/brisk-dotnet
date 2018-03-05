@@ -1,4 +1,4 @@
-﻿/*
+/*
 
 MIT License
 
@@ -23,6 +23,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
 */
+﻿
 using System;
 using System.Collections.Generic;
 using System.Net;
@@ -204,7 +205,7 @@ namespace Piot.Brisk.Connect
 			messageQueue.Enqueue(octets);
 		}
 
-		private void ReadHeader(IInOctetStream stream)
+		void ReadHeader(IInOctetStream stream)
 		{
 			var sequence = stream.ReadUint8();
 			var assignedConnectionId = stream.ReadUint16();
@@ -234,6 +235,10 @@ namespace Piot.Brisk.Connect
 
 		public void ReceivePacket(byte[] octets, IPEndPoint fromEndpoint)
 		{
+			if (octets.Length < 4)
+			{
+				return;
+			}
 			Console.Error.WriteLine($"Received packet {ByteArrayToString(octets)}");
 			var stream = new InOctetStream(octets);
 			var mode = stream.ReadUint8();
