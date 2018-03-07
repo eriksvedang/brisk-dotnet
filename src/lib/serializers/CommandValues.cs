@@ -29,5 +29,7 @@ namespace Piot.Brisk.Serializers
 	{
 		public const byte ChallengeRequest = 0x01;
 		public const byte ChallengeResponse = 0x02;
+		public const byte TimeSyncRequest = 0x03;
+		public const byte TimeSyncResponse = 0x04;
 	}
 }

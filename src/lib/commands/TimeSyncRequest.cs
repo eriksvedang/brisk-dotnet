@@ -24,58 +24,22 @@ SOFTWARE.
 
 */
 ﻿
-        ﻿ using System;
-
-namespace BriskConsole
+namespace Piot.Brisk.Commands
 {
-	class Program
+	public class TimeSyncRequest
 	{
-		public static void ParseHostString(string hostString, out string hostName, out int port)
+		readonly long time;
+
+		public TimeSyncRequest (long time)
 		{
-			hostName = hostString;
-
-			if (hostString.Contains(":"))
-			{
-				string[] hostParts = hostString.Split(':');
-
-				if (hostParts.Length == 2)
-				{
-					int parsedPort;
-					int.TryParse(hostParts[1], out parsedPort);
-
-					hostName = hostParts[0];
-					port = parsedPort;
-				}
-				else
-				{
-					throw new Exception("Illegal format string");
-				}
-			}
-			else
-			{
-				hostName = hostString;
-				port = 32001;
-			}
+			this.time = time;
 		}
 
-		static void Main(string[] args)
+		public long LocalElapsedMilliseconds
 		{
-			Console.Error.WriteLine("Brisk Console v0.1");
-
-			if (args.Length < 1)
+			get
 			{
-				return;
-			}
-			var hostString = args[0];
-			string hostname;
-			int port;
-			ParseHostString(hostString, out hostname, out port);
-			Console.Error.WriteLine($"Trying to connect to '{hostname}' {port}");
-			var client = new Client(hostname, port);
-
-			while (true)
-			{
-				client.Update();
+				return time;
 			}
 		}
 	}

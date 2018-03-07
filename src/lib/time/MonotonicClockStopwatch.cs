@@ -23,60 +23,17 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
 */
-﻿
-        ﻿ using System;
+﻿using System.Diagnostics;
 
-namespace BriskConsole
+namespace Piot.Brisk.Time
 {
-	class Program
+	public class MonotonicClockStopwatch : IMonotonicClock
 	{
-		public static void ParseHostString(string hostString, out string hostName, out int port)
+		readonly Stopwatch stopwatch = Stopwatch.StartNew ();
+
+		public long NowMilliseconds()
 		{
-			hostName = hostString;
-
-			if (hostString.Contains(":"))
-			{
-				string[] hostParts = hostString.Split(':');
-
-				if (hostParts.Length == 2)
-				{
-					int parsedPort;
-					int.TryParse(hostParts[1], out parsedPort);
-
-					hostName = hostParts[0];
-					port = parsedPort;
-				}
-				else
-				{
-					throw new Exception("Illegal format string");
-				}
-			}
-			else
-			{
-				hostName = hostString;
-				port = 32001;
-			}
-		}
-
-		static void Main(string[] args)
-		{
-			Console.Error.WriteLine("Brisk Console v0.1");
-
-			if (args.Length < 1)
-			{
-				return;
-			}
-			var hostString = args[0];
-			string hostname;
-			int port;
-			ParseHostString(hostString, out hostname, out port);
-			Console.Error.WriteLine($"Trying to connect to '{hostname}' {port}");
-			var client = new Client(hostname, port);
-
-			while (true)
-			{
-				client.Update();
-			}
+			return stopwatch.ElapsedTicks / (Stopwatch.Frequency / 1000);
 		}
 	}
 }

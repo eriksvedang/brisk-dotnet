@@ -27,7 +27,7 @@ namespace Piot.Brisk.Commands
 {
 	public class ChallengeRequest
 	{
-		uint nonce;
+		readonly uint nonce;
 		public ChallengeRequest(uint nonce)
 		{
 			this.nonce = nonce;

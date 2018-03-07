@@ -31,6 +31,7 @@ using System.Text;
 using Flux.Client.Datagram;
 using Piot.Brisk.Commands;
 using Piot.Brisk.Serializers;
+using Piot.Brisk.Time;
 using Piot.Brook;
 using Piot.Brook.Octet;
 using Piot.Brook.Shared;
@@ -40,8 +41,8 @@ namespace Piot.Brisk.Connect
 {
 	public enum ConnectionState
 	{
-		Connecting,
-		WaitingForChallengeResponse,
+		Challenge,
+		TimeSync,
 		Connected
 	}
 
@@ -49,9 +50,9 @@ namespace Piot.Brisk.Connect
 	{
 		const byte NormalMode = 0x01;
 
-		ConnectionState state = ConnectionState.Connecting;
+		ConnectionState state = ConnectionState.Challenge;
 		Client udpClient;
-		byte outSequenceNumber = 0;
+		byte outSequenceNumber;
 		uint challengeNonce;
 		ushort connectionId;
 		SequenceId lastIncomingSequence = SequenceId.Max;
@@ -59,10 +60,16 @@ namespace Piot.Brisk.Connect
 		Queue<byte[]> messageQueue = new Queue<byte[]>();
 		IReceiveStream receiveStream;
 		DateTime lastStateChange = DateTime.UtcNow;
+		uint stateChangeWait = 500;
+		MonotonicClockStopwatch monotonicStopwatch = new MonotonicClockStopwatch ();
+		IMonotonicClock monotonicClock;
+		LatencyCollection latencies = new LatencyCollection ();
+		long localMillisecondsToRemoteMilliseconds;
 
 		public Connector(IReceiveStream receiveStream)
 		{
 			this.receiveStream = receiveStream;
+			monotonicClock = monotonicStopwatch;
 		}
 
 		public void Connect(string host, int port)
@@ -71,19 +78,60 @@ namespace Piot.Brisk.Connect
 			challengeNonce = RandomGenerator.RandomUInt();
 		}
 
-		void WriteHeader(IOutOctetStream outStream, byte mode, byte sequence, ushort connectionId)
+		public ulong RemoteMonotonicMilliseconds
+		{
+			get
+			{
+				if (state != ConnectionState.Connected)
+				{
+					throw new Exception ("You can only check remote time if connected!");
+				}
+				return (ulong)(monotonicClock.NowMilliseconds () + localMillisecondsToRemoteMilliseconds);
+			}
+		}
+
+		public ulong RemoteMonotonicSimulationFrame
+		{
+			get
+			{
+				return ElapsedSimulationFrame.FromElapsedMilliseconds (RemoteMonotonicMilliseconds);
+			}
+		}
+
+		static void WriteHeader(IOutOctetStream outStream, byte mode, byte sequence, ushort connectionIdToSend)
 		{
 			outStream.WriteUint8(mode);
 			outStream.WriteUint8(sequence);
-			outStream.WriteUint16(connectionId);
+			outStream.WriteUint16(connectionIdToSend);
 		}
 
-		public void UpdateConnecting(IOutOctetStream outStream)
+		void RequestTime(IOutOctetStream outStream)
+		{
+			var now = monotonicClock.NowMilliseconds ();
+			var timeSyncRequest = new TimeSyncRequest (now);
+
+			TimeSyncRequestSerializer.Serialize (outStream, timeSyncRequest);
+		}
+
+		void SendChallenge(IOutOctetStream outStream)
 		{
 			var challenge = new ChallengeRequest(challengeNonce);
 
 			ChallengeRequestSerializer.Serialize(outStream, challenge);
-			state = ConnectionState.WaitingForChallengeResponse;
+			lastStateChange = DateTime.UtcNow;
+			stateChangeWait = 500;
+		}
+
+		public void SendTimeSync (IOutOctetStream outStream)
+		{
+			RequestTime (outStream);
+		}
+
+		void SwitchState(ConnectionState newState, uint period)
+		{
+			Console.Error.WriteLine ($"State:{newState} period:{period}");
+			state = newState;
+			stateChangeWait = period;
 			lastStateChange = DateTime.UtcNow;
 		}
 
@@ -106,13 +154,16 @@ namespace Piot.Brisk.Connect
 
 			switch (state)
 			{
-			case ConnectionState.Connecting:
+			case ConnectionState.Challenge:
 				WriteHeader(octetStream, NormalMode, outSequenceNumber++, 0);
-				UpdateConnecting(octetStream);
+				SendChallenge(octetStream);
+				break;
+			case ConnectionState.TimeSync:
+				WriteHeader (octetStream, NormalMode, outSequenceNumber++, 0);
+				SendTimeSync (octetStream);
 				break;
 			case ConnectionState.Connected:
 				SendOneUpdatePacket(octetStream);
-
 				break;
 			}
 
@@ -129,7 +180,7 @@ namespace Piot.Brisk.Connect
 		{
 			var diff = DateTime.UtcNow - lastStateChange;
 
-			if (diff.TotalMilliseconds < 500)
+			if (diff.TotalMilliseconds < stateChangeWait)
 			{
 				return;
 			}
@@ -162,6 +213,10 @@ namespace Piot.Brisk.Connect
 
 		void OnChallengeResponse(IInOctetStream stream)
 		{
+			if (state != ConnectionState.Challenge)
+			{
+				return;
+			}
 			var nonce = stream.ReadUint32();
 			var assignedConnectionId = stream.ReadUint16();
 
@@ -170,9 +225,30 @@ namespace Piot.Brisk.Connect
 			if (nonce == challengeNonce)
 			{
 				Console.Error.WriteLine($"We have a connection! {assignedConnectionId}");
-				this.connectionId = assignedConnectionId;
-				state = ConnectionState.Connected;
-				lastStateChange = DateTime.UtcNow;
+				connectionId = assignedConnectionId;
+				SwitchState (ConnectionState.TimeSync, 100);
+			}
+		}
+
+		void OnTimeSyncResponse (IInOctetStream stream)
+		{
+			if (state != ConnectionState.TimeSync)
+			{
+				return;
+			}
+			var echoedTicks = stream.ReadUint64 ();
+			var latency = monotonicClock.NowMilliseconds () - (long)echoedTicks;
+			var remoteTicks = stream.ReadUint64 ();
+			latencies.AddLatency ((ushort)latency);
+			ushort averageLatency;
+			var isStable = latencies.StableLatency (out averageLatency);
+
+			if (isStable)
+			{
+				SwitchState (ConnectionState.Connected, 100);
+				var remoteTimeIsNow = remoteTicks + averageLatency;
+				localMillisecondsToRemoteMilliseconds = (long)remoteTimeIsNow - monotonicClock.NowMilliseconds ();
+				latencies = new LatencyCollection ();
 			}
 		}
 
@@ -184,6 +260,9 @@ namespace Piot.Brisk.Connect
 			{
 			case CommandValues.ChallengeResponse:
 				OnChallengeResponse(stream);
+				break;
+			case CommandValues.TimeSyncResponse:
+				OnTimeSyncResponse (stream);
 				break;
 			default:
 				throw new Exception($"Unknown command {cmd}");
@@ -233,22 +312,22 @@ namespace Piot.Brisk.Connect
 			}
 		}
 
-		public void ReceivePacket(byte[] octets, IPEndPoint fromEndpoint)
+		void IPacketReceiver.ReceivePacket (byte [] octets, IPEndPoint fromEndpoint)
 		{
 			if (octets.Length < 4)
 			{
 				return;
 			}
-			Console.Error.WriteLine($"Received packet {ByteArrayToString(octets)}");
-			var stream = new InOctetStream(octets);
-			var mode = stream.ReadUint8();
+			Console.Error.WriteLine ($"Received packet {ByteArrayToString (octets)}");
+			var stream = new InOctetStream (octets);
+			var mode = stream.ReadUint8 ();
 			switch (mode)
 			{
 			case 1: // Normal
-				ReadHeader(stream);
+				ReadHeader (stream);
 				break;
 			default:
-				throw new Exception($"Unknown mode {mode}");
+				throw new Exception ($"Unknown mode {mode}");
 			}
 		}
 
