@@ -73,12 +73,11 @@ namespace Piot.Brisk
 
 		public void AddLatency(ushort latencyInMilliseconds)
 		{
-			latencies.Add (latencyInMilliseconds);
-
 			if (IsQueueFull)
 			{
 				latencies.RemoveAt(0);
 			}
+			latencies.Add (latencyInMilliseconds);
 		}
 
 		public bool StableLatency(out ushort latency)
@@ -87,12 +86,14 @@ namespace Piot.Brisk
 
 			if (!IsQueueFull)
 			{
+				Console.Error.WriteLine($"NOT FULL:{latencies.Count}");
 				return false;
 			}
 
 			var sum = SumCollection.Sum (latencies);
 			var average = (ushort)(sum / latencies.Count);
 			var deviation = DeviationCollection.Deviation (latencies, average);
+			Console.Error.WriteLine($"Deviation:{deviation}");
 
 			if (deviation > 10)
 			{

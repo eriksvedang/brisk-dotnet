@@ -49,6 +49,7 @@ namespace Piot.Brisk.Connect
 	public class Connector : IPacketReceiver
 	{
 		const byte NormalMode = 0x01;
+		const byte OobMode = 0x02;
 
 		ConnectionState state = ConnectionState.Challenge;
 		Client udpClient;
@@ -78,7 +79,7 @@ namespace Piot.Brisk.Connect
 			challengeNonce = RandomGenerator.RandomUInt();
 		}
 
-		public ulong RemoteMonotonicMilliseconds
+		public long RemoteMonotonicMilliseconds
 		{
 			get
 			{
@@ -86,11 +87,11 @@ namespace Piot.Brisk.Connect
 				{
 					throw new Exception ("You can only check remote time if connected!");
 				}
-				return (ulong)(monotonicClock.NowMilliseconds () + localMillisecondsToRemoteMilliseconds);
+				return monotonicClock.NowMilliseconds () + localMillisecondsToRemoteMilliseconds;
 			}
 		}
 
-		public ulong RemoteMonotonicSimulationFrame
+		public long RemoteMonotonicSimulationFrame
 		{
 			get
 			{
@@ -149,17 +150,16 @@ namespace Piot.Brisk.Connect
 
 		void SendOnePacket()
 		{
-			var octetQueue = new OctetQueue(500);
 			var octetStream = new OutOctetStream();
 
 			switch (state)
 			{
 			case ConnectionState.Challenge:
-				WriteHeader(octetStream, NormalMode, outSequenceNumber++, 0);
+				WriteHeader(octetStream, OobMode, outSequenceNumber++, 0);
 				SendChallenge(octetStream);
 				break;
 			case ConnectionState.TimeSync:
-				WriteHeader (octetStream, NormalMode, outSequenceNumber++, 0);
+				WriteHeader (octetStream, OobMode, outSequenceNumber++, connectionId);
 				SendTimeSync (octetStream);
 				break;
 			case ConnectionState.Connected:
@@ -232,12 +232,16 @@ namespace Piot.Brisk.Connect
 
 		void OnTimeSyncResponse (IInOctetStream stream)
 		{
+			Console.Error.WriteLine("On Time Sync response");
+
 			if (state != ConnectionState.TimeSync)
 			{
+				Console.Error.WriteLine("We are not in timesync state anymore");
 				return;
 			}
 			var echoedTicks = stream.ReadUint64 ();
 			var latency = monotonicClock.NowMilliseconds () - (long)echoedTicks;
+			Console.Error.WriteLine($"Latency: {latency}");
 			var remoteTicks = stream.ReadUint64 ();
 			latencies.AddLatency ((ushort)latency);
 			ushort averageLatency;
@@ -245,10 +249,15 @@ namespace Piot.Brisk.Connect
 
 			if (isStable)
 			{
-				SwitchState (ConnectionState.Connected, 100);
-				var remoteTimeIsNow = remoteTicks + averageLatency;
+				var remoteTimeIsNow = remoteTicks + averageLatency / (ulong)2;
+				Console.Error.WriteLine($"We are stable! latency:{averageLatency}");
 				localMillisecondsToRemoteMilliseconds = (long)remoteTimeIsNow - monotonicClock.NowMilliseconds ();
 				latencies = new LatencyCollection ();
+				SwitchState(ConnectionState.Connected, 100);
+			}
+			else
+			{
+				Console.Error.WriteLine("Not stable yet, keep sending");
 			}
 		}
 
@@ -284,7 +293,7 @@ namespace Piot.Brisk.Connect
 			messageQueue.Enqueue(octets);
 		}
 
-		void ReadHeader(IInOctetStream stream)
+		void ReadHeader(IInOctetStream stream, byte mode)
 		{
 			var sequence = stream.ReadUint8();
 			var assignedConnectionId = stream.ReadUint16();
@@ -302,7 +311,15 @@ namespace Piot.Brisk.Connect
 					if (lastIncomingSequence.IsValidSuccessor(headerSequenceId))
 					{
 						lastIncomingSequence = headerSequenceId;
-						ReadConnectionPacket(stream);
+
+						if (mode == OobMode)
+						{
+							ReadOOB (stream);
+						}
+						else
+						{
+							ReadConnectionPacket (stream);
+						}
 					}
 					else
 					{
@@ -323,9 +340,13 @@ namespace Piot.Brisk.Connect
 			var mode = stream.ReadUint8 ();
 			switch (mode)
 			{
-			case 1: // Normal
-				ReadHeader (stream);
+			case NormalMode:
+				ReadHeader (stream, mode);
 				break;
+			case OobMode:
+				ReadHeader (stream, mode);
+				break;
+
 			default:
 				throw new Exception ($"Unknown mode {mode}");
 			}

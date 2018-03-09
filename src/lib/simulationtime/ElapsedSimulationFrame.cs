@@ -27,9 +27,9 @@ SOFTWARE.
 {
 	public static class ElapsedSimulationFrame
 	{
-		public static ulong FromElapsedMilliseconds(ulong ms)
+		public static long FromElapsedMilliseconds(long ms)
 		{
-			return (ulong)(ms / (1000.0 / 60.0));
+			return (long)(ms / (1000.0 / 60.0));
 		}
 	}
 }
