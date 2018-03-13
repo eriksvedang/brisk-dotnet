@@ -143,7 +143,6 @@ namespace Piot.Brisk.Connect
 				outgoingSequenceNumber = outgoingSequenceNumber.Next();
 				WriteHeader(octetStream, NormalMode, outgoingSequenceNumber.Value, connectionId);
 				var packetOctets = messageQueue.Dequeue();
-				Console.Error.WriteLine($"Sending app octets {ByteArrayToString(packetOctets)}");
 				octetStream.WriteOctets(packetOctets);
 			}
 		}
@@ -263,8 +262,8 @@ namespace Piot.Brisk.Connect
 
 		void ReadOOB(IInOctetStream stream)
 		{
-			Console.Error.WriteLine("OOB Packet");
 			var cmd = stream.ReadUint8();
+
 			switch (cmd)
 			{
 			case CommandValues.ChallengeResponse:
@@ -280,7 +279,6 @@ namespace Piot.Brisk.Connect
 
 		void ReadConnectionPacket(IInOctetStream stream)
 		{
-			Console.Error.WriteLine("Connection packet!");
 			receiveStream.Receive(stream);
 		}
 
@@ -335,7 +333,6 @@ namespace Piot.Brisk.Connect
 			{
 				return;
 			}
-			Console.Error.WriteLine ($"Received packet {ByteArrayToString (octets)}");
 			var stream = new InOctetStream (octets);
 			var mode = stream.ReadUint8 ();
 			switch (mode)
