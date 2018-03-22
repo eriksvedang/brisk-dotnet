@@ -34,10 +34,10 @@ namespace BriskConsole
 	{
 		Connector connector;
 
-		public Client(string hostname, int port)
+		public Client(string hostnameAndPort)
 		{
 			connector = new Connector(this);
-			connector.Connect(hostname, port);
+			connector.Connect(hostnameAndPort);
 		}
 
 		public void Receive(IInOctetStream stream)

@@ -73,9 +73,9 @@ namespace Piot.Brisk.Connect
 			monotonicClock = monotonicStopwatch;
 		}
 
-		public void Connect(string host, int port)
+		public void Connect(string hostAndPort)
 		{
-			udpClient = new Client(host, port, this);
+			udpClient = new Client(hostAndPort, this);
 			challengeNonce = RandomGenerator.RandomUInt();
 		}
 
