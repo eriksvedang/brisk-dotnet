@@ -23,26 +23,32 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
 */
-﻿
-using System;
+
 using Piot.Brisk.Connect;
 using Piot.Brook;
+using Piot.Log;
 
 namespace BriskConsole
 {
 	class Client : IReceiveStream
 	{
-		Connector connector;
-
-		public Client(string hostnameAndPort)
+		readonly Connector connector;
+		readonly ILog log;
+		public Client(ILog log, string hostnameAndPort)
 		{
-			connector = new Connector(this);
+			this.log = log;
+			connector = new Connector(log, this);
 			connector.Connect(hostnameAndPort);
+		}
+
+		public void Lost()
+		{
+			log.Debug("Disconnected!");
 		}
 
 		public void Receive(IInOctetStream stream)
 		{
-			Console.Error.WriteLine("Received unknown stream");
+			log.Debug("Received unknown stream");
 		}
 
 		public void Update()

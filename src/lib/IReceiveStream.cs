@@ -23,7 +23,6 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
 */
-﻿ using System;
 using Piot.Brook;
 
 namespace Piot.Brisk.Connect
@@ -31,5 +30,7 @@ namespace Piot.Brisk.Connect
 	public interface IReceiveStream
 	{
 		void Receive(IInOctetStream stream);
+
+		void Lost();
 	}
 }

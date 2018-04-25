@@ -23,7 +23,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
 */
-﻿
+
 using System;
 using System.Collections.Generic;
 using System.Net;
@@ -34,8 +34,8 @@ using Piot.Brisk.Serializers;
 using Piot.Brisk.Time;
 using Piot.Brook;
 using Piot.Brook.Octet;
-using Piot.Brook.Shared;
 using Piot.Tend.Client;
+using Piot.Log;
 
 namespace Piot.Brisk.Connect
 {
@@ -43,7 +43,8 @@ namespace Piot.Brisk.Connect
 	{
 		Challenge,
 		TimeSync,
-		Connected
+		Connected,
+		Disconnected
 	}
 
 	public class Connector : IPacketReceiver
@@ -66,17 +67,20 @@ namespace Piot.Brisk.Connect
 		IMonotonicClock monotonicClock;
 		LatencyCollection latencies = new LatencyCollection ();
 		long localMillisecondsToRemoteMilliseconds;
+		ILog log;
+		DateTime lastValidHeader = DateTime.UtcNow;
 
-		public Connector(IReceiveStream receiveStream)
+		public Connector(ILog log, IReceiveStream receiveStream)
 		{
 			this.receiveStream = receiveStream;
+			this.log = log;
 			monotonicClock = monotonicStopwatch;
 		}
 
 		public void Connect(string hostAndPort)
 		{
 			udpClient = new Client(hostAndPort, this);
-			challengeNonce = RandomGenerator.RandomUInt();
+			StartChallenge();
 		}
 
 		public long RemoteMonotonicMilliseconds
@@ -116,6 +120,7 @@ namespace Piot.Brisk.Connect
 
 		void SendChallenge(IOutOctetStream outStream)
 		{
+			log.Debug("Sending Challenge!");
 			var challenge = new ChallengeRequest(challengeNonce);
 
 			ChallengeRequestSerializer.Serialize(outStream, challenge);
@@ -125,12 +130,14 @@ namespace Piot.Brisk.Connect
 
 		public void SendTimeSync (IOutOctetStream outStream)
 		{
+			// log.Trace("Sending TimeSync!");
+
 			RequestTime (outStream);
 		}
 
 		void SwitchState(ConnectionState newState, uint period)
 		{
-			Console.Error.WriteLine ($"State:{newState} period:{period}");
+			log.Debug ($"State:{newState} period:{period}");
 			state = newState;
 			stateChangeWait = period;
 			lastStateChange = DateTime.UtcNow;
@@ -145,6 +152,11 @@ namespace Piot.Brisk.Connect
 				var packetOctets = messageQueue.Dequeue();
 				octetStream.WriteOctets(packetOctets);
 			}
+		}
+
+		void StartChallenge()
+		{
+			challengeNonce = RandomGenerator.RandomUInt();
 		}
 
 		void SendOnePacket()
@@ -170,8 +182,24 @@ namespace Piot.Brisk.Connect
 
 			if (octetsToSend.Length > 0)
 			{
-				// Console.Error.WriteLine($"Sending packet {ByteArrayToString(octetsToSend)}");
+				// log.Debug($"Sending packet {ByteArrayToString(octetsToSend)}");
 				udpClient.Send(octetsToSend);
+			}
+		}
+
+		void CheckDisconnect()
+		{
+			if (state == ConnectionState.Challenge)
+			{
+				return;
+			}
+			var timeSinceReceivedHeader = DateTime.UtcNow - lastValidHeader;
+
+			if (timeSinceReceivedHeader.Seconds > 3)
+			{
+				log.Debug("Disconnect detected!");
+				SwitchState(ConnectionState.Disconnected, 9999);
+				receiveStream.Lost();
 			}
 		}
 
@@ -183,6 +211,7 @@ namespace Piot.Brisk.Connect
 			{
 				return;
 			}
+			CheckDisconnect();
 			while (true)
 			{
 				SendOnePacket();
@@ -219,11 +248,11 @@ namespace Piot.Brisk.Connect
 			var nonce = stream.ReadUint32();
 			var assignedConnectionId = stream.ReadUint16();
 
-			Console.Error.WriteLine($"Challenge response {nonce:X} {assignedConnectionId:X}");
+			log.Debug($"Challenge response {nonce:X} {assignedConnectionId:X}");
 
 			if (nonce == challengeNonce)
 			{
-				Console.Error.WriteLine($"We have a connection! {assignedConnectionId}");
+				log.Debug($"We have a connection! {assignedConnectionId}");
 				connectionId = assignedConnectionId;
 				SwitchState (ConnectionState.TimeSync, 100);
 			}
@@ -231,16 +260,16 @@ namespace Piot.Brisk.Connect
 
 		void OnTimeSyncResponse (IInOctetStream stream)
 		{
-			Console.Error.WriteLine("On Time Sync response");
+			//log.Trace("On Time Sync response");
 
 			if (state != ConnectionState.TimeSync)
 			{
-				Console.Error.WriteLine("We are not in timesync state anymore");
+				log.Warning("We are not in timesync state anymore");
 				return;
 			}
 			var echoedTicks = stream.ReadUint64 ();
 			var latency = monotonicClock.NowMilliseconds () - (long)echoedTicks;
-			Console.Error.WriteLine($"Latency: {latency}");
+			// log.Trace($"Latency: {latency}");
 			var remoteTicks = stream.ReadUint64 ();
 			latencies.AddLatency ((ushort)latency);
 			ushort averageLatency;
@@ -249,14 +278,14 @@ namespace Piot.Brisk.Connect
 			if (isStable)
 			{
 				var remoteTimeIsNow = remoteTicks + averageLatency / (ulong)2;
-				Console.Error.WriteLine($"We are stable! latency:{averageLatency}");
+				//log.Trace($"We are stable! latency:{averageLatency}");
 				localMillisecondsToRemoteMilliseconds = (long)remoteTimeIsNow - monotonicClock.NowMilliseconds ();
 				latencies = new LatencyCollection ();
 				SwitchState(ConnectionState.Connected, 100);
 			}
 			else
 			{
-				Console.Error.WriteLine("Not stable yet, keep sending");
+				//log.Trace("Not stable yet, keep sending");
 			}
 		}
 
@@ -321,10 +350,12 @@ namespace Piot.Brisk.Connect
 					}
 					else
 					{
-						Console.Error.WriteLine($"Warning: out of sequence! expected {lastIncomingSequence.Next()} but received {headerSequenceId}");
+						log.Warning($"Warning: out of sequence! expected {lastIncomingSequence.Next()} but received {headerSequenceId}");
 					}
 				}
 			}
+
+			lastValidHeader = DateTime.UtcNow;
 		}
 
 		void IPacketReceiver.ReceivePacket (byte [] octets, IPEndPoint fromEndpoint)

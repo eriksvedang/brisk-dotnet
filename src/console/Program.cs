@@ -25,6 +25,7 @@ SOFTWARE.
 */
 ﻿
         ﻿ using System;
+using Piot.Log;
 
 namespace BriskConsole
 {
@@ -40,7 +41,9 @@ namespace BriskConsole
 			}
 			var hostString = args[0];
 			Console.Error.WriteLine($"Trying to connect to '{hostString}'");
-			var client = new Client(hostString);
+			var target = new ConsoleLogTarget();
+			var log = new Log(target);
+			var client = new Client(log, hostString);
 
 			while (true)
 			{
