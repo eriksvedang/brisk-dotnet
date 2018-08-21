@@ -45,4 +45,10 @@
     <Folder Include="..\..\lib\simulationtime\" />
     <Folder Include="..\..\lib\latency\" />
   </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Tend" Version="1.0.0" />
+    <PackageReference Include="Brook.Net" Version="1.0.0" />
+    <PackageReference Include="Clog" Version="1.0.0" />
+    <PackageReference Include="Flux.Net" Version="1.0.0" />
+  </ItemGroup>
 </Project>

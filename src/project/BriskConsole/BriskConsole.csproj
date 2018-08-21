@@ -17,21 +17,4 @@
   <ItemGroup>
     <ProjectReference Include="..\BriskLib\BriskLib.csproj" />
   </ItemGroup>
-  <ItemGroup>
-    <Reference Include="fluxdatagram">
-      <HintPath>..\..\assemblies\fluxdatagram.dll</HintPath>
-    </Reference>
-    <Reference Include="BrookLib">
-      <HintPath>..\..\assemblies\BrookLib.dll</HintPath>
-    </Reference>
-    <Reference Include="FluxLib">
-      <HintPath>..\..\assemblies\FluxLib.dll</HintPath>
-    </Reference>
-    <Reference Include="Piot.Tend">
-      <HintPath>..\..\assemblies\Piot.Tend.dll</HintPath>
-    </Reference>
-    <Reference Include="LogLib">
-      <HintPath>..\..\assemblies\LogLib.dll</HintPath>
-    </Reference>
-  </ItemGroup>
 </Project>
