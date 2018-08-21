@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<package >
+  <metadata>
+    <id>Brisk</id>
+    <version>1.0.0</version>
+    <authors>Piot</authors>
+    <owners>Piot</owners>
+    <licenseUrl>https://opensource.org/licenses/MIT</licenseUrl>
+    <projectUrl>https://github.com/Piot/brisk-dotnet</projectUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>Datagram connections</description>
+    <releaseNotes>Initial commit.</releaseNotes>
+    <copyright>Copyright 2017</copyright>
+    <tags>datagram udp</tags>
+    <dependencies>
+    </dependencies>
+  </metadata>
+</package>
