@@ -23,15 +23,18 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
 */
+using Piot.Brisk.Commands;
+using Piot.Brook;
+using Piot.Tend.Client;
+
 namespace Piot.Brisk.Serializers
 {
-	public static class CommandValues
+	public static class PingRequestHeaderSerializer
 	{
-		public const byte ChallengeRequest = 0x01;
-		public const byte ChallengeResponse = 0x02;
-		public const byte TimeSyncRequest = 0x03;
-		public const byte TimeSyncResponse = 0x04;
-		public const byte PingRequest = 0x05;
-		public const byte PongResponse = 0x06;
+		public static void Serialize(IOutOctetStream stream, PingRequestHeader cmd)
+		{
+			stream.WriteUint8(CommandValues.PingRequest);
+			stream.WriteUint64((ushort)cmd.LocalElapsedMilliseconds);
+		}
 	}
 }

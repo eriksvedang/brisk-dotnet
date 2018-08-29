@@ -23,15 +23,19 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
 */
-namespace Piot.Brisk.Serializers
+using System;
+using Piot.Brisk.Commands;
+using Piot.Brook;
+
+namespace Piot.Brisk.deserializers
 {
-	public static class CommandValues
+	public static class PongResponseHeaderDeserializer
 	{
-		public const byte ChallengeRequest = 0x01;
-		public const byte ChallengeResponse = 0x02;
-		public const byte TimeSyncRequest = 0x03;
-		public const byte TimeSyncResponse = 0x04;
-		public const byte PingRequest = 0x05;
-		public const byte PongResponse = 0x06;
+		public static PongResponseHeader Deserialize(IInOctetStream stream)
+		{
+			var elapsedMilliseconds = (long)stream.ReadUint64();
+
+			return new PongResponseHeader(elapsedMilliseconds);
+		}
 	}
 }

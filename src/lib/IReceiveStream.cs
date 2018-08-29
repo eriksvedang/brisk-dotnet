@@ -29,8 +29,10 @@ namespace Piot.Brisk.Connect
 {
 	public interface IReceiveStream
 	{
-		void Receive(IInOctetStream stream);
+		void Receive(IInOctetStream stream, PacketSequenceId sequenceId);
 
 		void Lost();
+
+		void PacketDelivery(PacketSequenceId sequenceId, bool wasReceived);
 	}
 }

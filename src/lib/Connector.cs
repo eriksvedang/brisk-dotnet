@@ -23,7 +23,6 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
 */
-
 using System;
 using System.Collections.Generic;
 using System.Net;
@@ -36,6 +35,7 @@ using Piot.Brook;
 using Piot.Brook.Octet;
 using Piot.Tend.Client;
 using Piot.Log;
+using Piot.Brisk.deserializers;
 
 namespace Piot.Brisk.Connect
 {
@@ -69,6 +69,8 @@ namespace Piot.Brisk.Connect
 		long localMillisecondsToRemoteMilliseconds;
 		ILog log;
 		DateTime lastValidHeader = DateTime.UtcNow;
+		OutgoingLogic tendOut = new OutgoingLogic();
+		IncomingLogic tendIn = new IncomingLogic();
 
 		public Connector(ILog log, IReceiveStream receiveStream)
 		{
@@ -118,6 +120,15 @@ namespace Piot.Brisk.Connect
 			TimeSyncRequestSerializer.Serialize (outStream, timeSyncRequest);
 		}
 
+		void SendPing(IOutOctetStream outStream)
+		{
+			var now = monotonicClock.NowMilliseconds();
+			var pingRequest = new PingRequestHeader(now);
+
+			PingRequestHeaderSerializer.Serialize(outStream, pingRequest);
+			TendSerializer.Serialize(outStream, tendIn, tendOut);
+		}
+
 		void SendChallenge(IOutOctetStream outStream)
 		{
 			log.Debug("Sending Challenge!");
@@ -143,14 +154,24 @@ namespace Piot.Brisk.Connect
 			lastStateChange = DateTime.UtcNow;
 		}
 
+		void SendPing(IOutOctetStream octetStream, SequenceId sequenceId)
+		{
+		}
+
 		void SendOneUpdatePacket(IOutOctetStream octetStream)
 		{
-			if (messageQueue.Count > 0)
+			if (messageQueue.Count > 0 && tendOut.CanIncrementOutgoingSequence)
 			{
 				outgoingSequenceNumber = outgoingSequenceNumber.Next();
+				tendOut.IncreaseOutgoingSequenceId();
 				WriteHeader(octetStream, NormalMode, outgoingSequenceNumber.Value, connectionId);
+				TendSerializer.Serialize(octetStream, tendIn, tendOut);
 				var packetOctets = messageQueue.Dequeue();
 				octetStream.WriteOctets(packetOctets);
+			}
+			else
+			{
+				SendPing(octetStream, tendOut.OutgoingSequenceId);
 			}
 		}
 
@@ -258,6 +279,18 @@ namespace Piot.Brisk.Connect
 			}
 		}
 
+		void OnPongResponseCmd(PongResponseHeader response)
+		{
+		}
+
+		void OnPongResponse(IInOctetStream stream)
+		{
+			var pongResponse = PongResponseHeaderDeserializer.Deserialize(stream);
+
+			OnPongResponseCmd(pongResponse);
+			HandleTend(stream);
+		}
+
 		void OnTimeSyncResponse (IInOctetStream stream)
 		{
 			//log.Trace("On Time Sync response");
@@ -299,16 +332,41 @@ namespace Piot.Brisk.Connect
 				OnChallengeResponse(stream);
 				break;
 			case CommandValues.TimeSyncResponse:
-				OnTimeSyncResponse (stream);
+				OnTimeSyncResponse(stream);
+				break;
+			case CommandValues.PongResponse:
+				OnPongResponse(stream);
 				break;
 			default:
 				throw new Exception($"Unknown command {cmd}");
 			}
 		}
 
+		void CallbackTend()
+		{
+			while (tendOut.Count > 0)
+			{
+				var deliveryInfo = tendOut.Dequeue();
+				receiveStream.PacketDelivery(PacketSequenceId.Create((uint)deliveryInfo.PacketSequenceId.Value), deliveryInfo.WasDelivered);
+			}
+		}
+
+		SequenceId HandleTend(IInOctetStream stream)
+		{
+			var info = TendDeserializer.Deserialize(stream);
+
+			tendIn.ReceivedToUs(info.PacketId);
+			tendOut.ReceivedByRemote(info.Header);
+			CallbackTend();
+
+			return info.PacketId;
+		}
+
 		void ReadConnectionPacket(IInOctetStream stream)
 		{
-			receiveStream.Receive(stream);
+			var packetId = HandleTend(stream);
+
+			receiveStream.Receive(stream, PacketSequenceId.Create(packetId.Value));
 		}
 
 		public void Send(byte[] octets)

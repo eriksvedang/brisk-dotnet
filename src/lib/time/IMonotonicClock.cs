@@ -23,7 +23,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
 */
-﻿namespace Piot.Brisk.Time
+namespace Piot.Brisk.Time
 {
 	public interface IMonotonicClock
 	{

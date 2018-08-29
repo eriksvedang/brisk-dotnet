@@ -23,7 +23,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
 */
-﻿namespace Piot.Brisk
+namespace Piot.Brisk
 {
 	public static class ElapsedSimulationFrame
 	{

@@ -23,9 +23,9 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
 */
-﻿
 using Piot.Brisk.Commands;
 using Piot.Brook;
+using Piot.Tend.Client;
 
 namespace Piot.Brisk.Serializers
 {

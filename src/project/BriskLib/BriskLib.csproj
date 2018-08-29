@@ -25,6 +25,13 @@
     <Compile Include="..\..\lib\simulationtime\ElapsedSimulationFrame.cs" />
     <Compile Include="..\..\lib\serializers\TimeSyncRequestSerializer.cs" />
     <Compile Include="..\..\lib\latency\LatencyCollection.cs" />
+    <Compile Include="..\..\lib\serializers\TendSerializer.cs" />
+    <Compile Include="..\..\lib\commands\PingRequestHeader.cs" />
+    <Compile Include="..\..\lib\serializers\PingRequestHeaderSerializer.cs" />
+    <Compile Include="..\..\lib\commands\PongResponseHeader.cs" />
+    <Compile Include="..\..\lib\deserializers\PongResponseHeaderDeserializer.cs" />
+    <Compile Include="..\..\lib\deserializers\TendDeserializer.cs" />
+    <Compile Include="..\..\lib\PacketSequenceId.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="BrookLib">
@@ -44,9 +51,10 @@
     <Folder Include="..\..\lib\time\" />
     <Folder Include="..\..\lib\simulationtime\" />
     <Folder Include="..\..\lib\latency\" />
+    <Folder Include="..\..\lib\deserializers\" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Tend" Version="1.0.0" />
+    <PackageReference Include="Tend" Version="1.0.7" />
     <PackageReference Include="Brook.Net" Version="1.0.0" />
     <PackageReference Include="Clog" Version="1.0.0" />
     <PackageReference Include="Flux.Net" Version="1.0.0" />

@@ -23,15 +23,23 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
 */
-namespace Piot.Brisk.Serializers
+namespace Piot.Brisk.Commands
 {
-	public static class CommandValues
+	public class PingRequestHeader
 	{
-		public const byte ChallengeRequest = 0x01;
-		public const byte ChallengeResponse = 0x02;
-		public const byte TimeSyncRequest = 0x03;
-		public const byte TimeSyncResponse = 0x04;
-		public const byte PingRequest = 0x05;
-		public const byte PongResponse = 0x06;
+		readonly long time;
+
+		public PingRequestHeader(long time)
+		{
+			this.time = time;
+		}
+
+		public long LocalElapsedMilliseconds
+		{
+			get
+			{
+				return time;
+			}
+		}
 	}
 }
