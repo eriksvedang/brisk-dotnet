@@ -2,18 +2,18 @@
 <package >
   <metadata>
     <id>Brisk</id>
-    <version>1.0.2</version>
+    <version>2.0.0</version>
     <authors>Piot</authors>
     <owners>Piot</owners>
     <licenseUrl>https://opensource.org/licenses/MIT</licenseUrl>
     <projectUrl>https://github.com/Piot/brisk-dotnet</projectUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>Datagram connections</description>
-    <releaseNotes>Added package dependencies</releaseNotes>
+    <releaseNotes>Added Tend</releaseNotes>
     <copyright>Copyright 2017</copyright>
     <tags>datagram udp</tags>
     <dependencies>
-      <dependency id="Tend" version="1.0.0" />
+      <dependency id="Tend" version="1.0.7" />
       <dependency id="Brook.Net" version="1.0.0" />
       <dependency id="Clog" version="1.0.0" />
       <dependency id="Flux.Net" version="1.0.0" />
