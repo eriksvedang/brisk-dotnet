@@ -4,6 +4,16 @@
     <TargetFramework>netstandard2.0</TargetFramework>
     <BaseDirectory>..\..\lib</BaseDirectory>
     <RootNamespace>Piot.Brisk</RootNamespace>
+
+    <PackageId>Brisk</PackageId>
+    <Version>2.0.1</Version>
+    <Authors>Piot</Authors>
+    <Description>Datagram connections</Description>
+    <PackageLicenseUrl>https://opensource.org/licenses/MIT</PackageLicenseUrl>
+    <PackageProjectUrl> https://github.com/Piot/brisk-dotnet</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/piot/brisk-dotnet.git</RepositoryUrl>
+    <PacketReleaseNotes>updated dependencies</PacketReleaseNotes>
+    <IncludeSymbols>true</IncludeSymbols>
   </PropertyGroup>
 
   <ItemGroup>
@@ -55,7 +65,7 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Tend" Version="1.0.7" />
-    <PackageReference Include="Brook.Net" Version="1.0.0" />
+    <PackageReference Include="Brook.Net" Version="1.1.0" />
     <PackageReference Include="Clog" Version="1.0.0" />
     <PackageReference Include="Flux.Net" Version="1.0.0" />
   </ItemGroup>
