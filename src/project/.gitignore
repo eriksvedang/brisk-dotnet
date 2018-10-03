@@ -3,4 +3,4 @@ obj/
 .vs/
 *.user
 *.userprefs
-
+*.nupkg
