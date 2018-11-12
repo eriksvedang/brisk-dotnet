@@ -21,6 +21,9 @@
     <Compile Include="..\..\lib\commands\ChallengeRequest.cs">
       <Link>commands\ChallengeRequest.cs</Link>
     </Compile>
+    <Compile Include="..\..\lib\ISendStream.cs">
+      <Link>ISendStream.cs</Link>
+    </Compile>
     <Compile Include="..\..\lib\serializers\ChallengeRequestSerializer.cs">
       <Link>serializers\ChallengeRequestSerializer.cs</Link>
     </Compile>

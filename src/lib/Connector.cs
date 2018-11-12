@@ -59,8 +59,9 @@ namespace Piot.Brisk.Connect
 		ushort connectionId;
 		SequenceId lastIncomingSequence = SequenceId.Max;
 		SequenceId outgoingSequenceNumber = SequenceId.Max;
-		Queue<byte[]> messageQueue = new Queue<byte[]>();
+		//Queue<byte[]> messageQueue = new Queue<byte[]>();
 		IReceiveStream receiveStream;
+		ISendStream sendStream;
 		DateTime lastStateChange = DateTime.UtcNow;
 		uint stateChangeWait = 500;
 		MonotonicClockStopwatch monotonicStopwatch = new MonotonicClockStopwatch ();
@@ -72,9 +73,10 @@ namespace Piot.Brisk.Connect
 		OutgoingLogic tendOut = new OutgoingLogic();
 		IncomingLogic tendIn = new IncomingLogic();
 
-		public Connector(ILog log, IReceiveStream receiveStream)
+		public Connector(ILog log, IReceiveStream receiveStream, ISendStream sendStream)
 		{
 			this.receiveStream = receiveStream;
+			this.sendStream = sendStream;
 			this.log = log;
 			monotonicClock = monotonicStopwatch;
 		}
@@ -160,14 +162,13 @@ namespace Piot.Brisk.Connect
 
 		void SendOneUpdatePacket(IOutOctetStream octetStream)
 		{
-			if (messageQueue.Count > 0 && tendOut.CanIncrementOutgoingSequence)
+			if (tendOut.CanIncrementOutgoingSequence)
 			{
 				outgoingSequenceNumber = outgoingSequenceNumber.Next();
 				tendOut.IncreaseOutgoingSequenceId();
 				WriteHeader(octetStream, NormalMode, outgoingSequenceNumber.Value, connectionId);
 				TendSerializer.Serialize(octetStream, tendIn, tendOut);
-				var packetOctets = messageQueue.Dequeue();
-				octetStream.WriteOctets(packetOctets);
+				sendStream.Send(octetStream, PacketSequenceId.Create(outgoingSequenceNumber.Value));
 			}
 			else
 			{
@@ -242,10 +243,6 @@ namespace Piot.Brisk.Connect
 					break;
 				}
 
-				if (messageQueue.Count == 0)
-				{
-					break;
-				}
 			}
 		}
 
@@ -369,14 +366,7 @@ namespace Piot.Brisk.Connect
 			receiveStream.Receive(stream, PacketSequenceId.Create(packetId.Value));
 		}
 
-		public void Send(byte[] octets)
-		{
-			if (octets.Length > 450)
-			{
-				throw new Exception($"Too large packet! {octets.Length}");
-			}
-			messageQueue.Enqueue(octets);
-		}
+
 
 		void ReadHeader(IInOctetStream stream, byte mode)
 		{
@@ -399,11 +389,11 @@ namespace Piot.Brisk.Connect
 
 						if (mode == OobMode)
 						{
-							ReadOOB (stream);
+							ReadOOB(stream);
 						}
 						else
 						{
-							ReadConnectionPacket (stream);
+							ReadConnectionPacket(stream);
 						}
 					}
 					else
