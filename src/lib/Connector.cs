@@ -160,7 +160,7 @@ namespace Piot.Brisk.Connect
 		{
 		}
 
-		void SendOneUpdatePacket(IOutOctetStream octetStream)
+		bool SendOneUpdatePacket(IOutOctetStream octetStream)
 		{
 			if (tendOut.CanIncrementOutgoingSequence)
 			{
@@ -168,11 +168,12 @@ namespace Piot.Brisk.Connect
 				var tendSequenceId = tendOut.IncreaseOutgoingSequenceId();
 				WriteHeader(octetStream, NormalMode, outgoingSequenceNumber.Value, connectionId);
 				TendSerializer.Serialize(octetStream, tendIn, tendOut);
-				sendStream.Send(octetStream, tendSequenceId);
+				return sendStream.Send(octetStream, tendSequenceId);
 			}
 			else
 			{
 				SendPing(octetStream, tendOut.OutgoingSequenceId);
+				return true;
 			}
 		}
 
@@ -181,7 +182,7 @@ namespace Piot.Brisk.Connect
 			challengeNonce = RandomGenerator.RandomUInt();
 		}
 
-		void SendOnePacket()
+		bool SendOnePacket()
 		{
 			var octetStream = new OutOctetStream();
 
@@ -196,8 +197,7 @@ namespace Piot.Brisk.Connect
 				SendTimeSync (octetStream);
 				break;
 			case ConnectionState.Connected:
-				SendOneUpdatePacket(octetStream);
-				break;
+				return SendOneUpdatePacket(octetStream);
 			}
 
 			var octetsToSend = octetStream.Close();
@@ -207,6 +207,7 @@ namespace Piot.Brisk.Connect
 				// log.Debug($"Sending packet {ByteArrayToString(octetsToSend)}");
 				udpClient.Send(octetsToSend);
 			}
+			return true;
 		}
 
 		void CheckDisconnect()
@@ -234,15 +235,13 @@ namespace Piot.Brisk.Connect
 				return;
 			}
 			CheckDisconnect();
-			while (true)
+			const int burstCount = 3;
+			for (var i=0; i<burstCount; ++i)
 			{
-				SendOnePacket();
-
-				if (state != ConnectionState.Connected)
-				{
+				var isDone = SendOnePacket();
+				if (isDone) {
 					break;
 				}
-
 			}
 		}
 

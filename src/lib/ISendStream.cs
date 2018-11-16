@@ -30,6 +30,6 @@ namespace Piot.Brisk.Connect
 {
 	public interface ISendStream
 	{
-		void Send(IOutOctetStream stream, SequenceId sequenceId);
+		bool Send(IOutOctetStream stream, SequenceId sequenceId);
 	}
 }

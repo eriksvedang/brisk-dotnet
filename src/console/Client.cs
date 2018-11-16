@@ -63,9 +63,10 @@ namespace BriskConsole
 			connector.Update();
 		}
 
-        void ISendStream.Send(IOutOctetStream stream, SequenceId sequenceId)
+        bool ISendStream.Send(IOutOctetStream stream, SequenceId sequenceId)
         {
             log.Debug("Sending packet...");
+			return true;
         }
     }
 }
