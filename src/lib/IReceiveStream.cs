@@ -24,15 +24,16 @@ SOFTWARE.
 
 */
 using Piot.Brook;
+using Piot.Tend.Client;
 
 namespace Piot.Brisk.Connect
 {
 	public interface IReceiveStream
 	{
-		void Receive(IInOctetStream stream, PacketSequenceId sequenceId);
+		void Receive(IInOctetStream stream, SequenceId sequenceId);
 
 		void Lost();
 
-		void PacketDelivery(PacketSequenceId sequenceId, bool wasReceived);
+		void PacketDelivery(SequenceId sequenceId, bool wasReceived);
 	}
 }

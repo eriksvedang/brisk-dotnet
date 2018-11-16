@@ -27,10 +27,11 @@ using Piot.Brisk;
 using Piot.Brisk.Connect;
 using Piot.Brook;
 using Piot.Log;
+using Piot.Tend.Client;
 
 namespace BriskConsole
 {
-	class Client : IReceiveStream
+	class Client : IReceiveStream, ISendStream
 	{
 		readonly Connector connector;
 		readonly ILog log;
@@ -38,7 +39,7 @@ namespace BriskConsole
 		public Client(ILog log, string hostnameAndPort)
 		{
 			this.log = log;
-			connector = new Connector(log, this);
+			connector = new Connector(log, this, this);
 			connector.Connect(hostnameAndPort);
 		}
 
@@ -47,12 +48,12 @@ namespace BriskConsole
 			log.Debug("Disconnected!");
 		}
 
-		public void PacketDelivery(PacketSequenceId sequenceId, bool wasReceived)
+		public void PacketDelivery(SequenceId sequenceId, bool wasReceived)
 		{
 			log.Debug("Packet delivered");
 		}
 
-		public void Receive(IInOctetStream stream, PacketSequenceId sequenceId)
+		public void Receive(IInOctetStream stream,SequenceId sequenceId)
 		{
 			log.Debug("Receiving packet...");
 		}
@@ -61,5 +62,10 @@ namespace BriskConsole
 		{
 			connector.Update();
 		}
-	}
+
+        void ISendStream.Send(IOutOctetStream stream, SequenceId sequenceId)
+        {
+            log.Debug("Sending packet...");
+        }
+    }
 }

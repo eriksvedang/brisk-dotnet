@@ -165,10 +165,10 @@ namespace Piot.Brisk.Connect
 			if (tendOut.CanIncrementOutgoingSequence)
 			{
 				outgoingSequenceNumber = outgoingSequenceNumber.Next();
-				tendOut.IncreaseOutgoingSequenceId();
+				var tendSequenceId = tendOut.IncreaseOutgoingSequenceId();
 				WriteHeader(octetStream, NormalMode, outgoingSequenceNumber.Value, connectionId);
 				TendSerializer.Serialize(octetStream, tendIn, tendOut);
-				sendStream.Send(octetStream, PacketSequenceId.Create(outgoingSequenceNumber.Value));
+				sendStream.Send(octetStream, tendSequenceId);
 			}
 			else
 			{
@@ -344,7 +344,7 @@ namespace Piot.Brisk.Connect
 			while (tendOut.Count > 0)
 			{
 				var deliveryInfo = tendOut.Dequeue();
-				receiveStream.PacketDelivery(PacketSequenceId.Create((uint)deliveryInfo.PacketSequenceId.Value), deliveryInfo.WasDelivered);
+				receiveStream.PacketDelivery(deliveryInfo.PacketSequenceId, deliveryInfo.WasDelivered);
 			}
 		}
 
@@ -363,7 +363,7 @@ namespace Piot.Brisk.Connect
 		{
 			var packetId = HandleTend(stream);
 
-			receiveStream.Receive(stream, PacketSequenceId.Create(packetId.Value));
+			receiveStream.Receive(stream, packetId);
 		}
 
 

@@ -24,11 +24,12 @@ SOFTWARE.
 
 */
 using Piot.Brook;
+using Piot.Tend.Client;
 
 namespace Piot.Brisk.Connect
 {
 	public interface ISendStream
 	{
-		void Send(IOutOctetStream stream, PacketSequenceId sequenceId);
+		void Send(IOutOctetStream stream, SequenceId sequenceId);
 	}
 }
