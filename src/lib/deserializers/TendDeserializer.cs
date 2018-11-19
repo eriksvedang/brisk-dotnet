@@ -29,27 +29,34 @@ using Piot.Tend.Client;
 
 namespace Piot.Brisk.Serializers
 {
-	public static class TendDeserializer
-	{
-		public struct Info
-		{
-			public SequenceId PacketId;
-			public Header Header;
-		};
+    public static class TendDeserializer
+    {
+        public struct Info
+        {
+            public SequenceId PacketId;
+            public Header Header;
 
-		public static Info Deserialize(IInOctetStream stream)
-		{
-			var packetSequenceId = stream.ReadUint8();
-			var receivedByRemoteSequenceId = stream.ReadUint8();
-			var receiveMask = stream.ReadUint32();
-			var header = new Header(new SequenceId(receivedByRemoteSequenceId), new ReceiveMask(receiveMask));
+            public override string ToString()
+            {
+                return $"[TendInfo: {PacketId} {Header}]";
+            }
+        };
 
-			var info = new Info
-			{
-				PacketId = new SequenceId(packetSequenceId), Header = header
-			};
 
-			return info;
-		}
-	}
+        public static Info Deserialize(IInOctetStream stream)
+        {
+            var packetSequenceId = stream.ReadUint8();
+            var receivedByRemoteSequenceId = stream.ReadUint8();
+            var receiveMask = stream.ReadUint32();
+            var header = new Header(new SequenceId(receivedByRemoteSequenceId), new ReceiveMask(receiveMask));
+
+            var info = new Info
+            {
+                PacketId = new SequenceId(packetSequenceId),
+                Header = header
+            };
+
+            return info;
+        }
+    }
 }
