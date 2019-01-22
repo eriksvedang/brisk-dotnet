@@ -231,7 +231,8 @@ namespace Piot.Brisk.Connect
 
             if (timeSinceReceivedHeader.Seconds > DisconnectTime)
             {
-                log.Debug("Disconnect detected!");
+
+                log.Debug($"Disconnect detected! #{timeSinceReceivedHeader.Seconds}");
                 SwitchState(ConnectionState.Disconnected, 9999);
                 receiveStream.Lost();
             }
@@ -417,6 +418,7 @@ namespace Piot.Brisk.Connect
             }
 
             lastValidHeader = DateTime.UtcNow;
+            log.Info($"Marked valid header...{lastValidHeader}");
         }
 
         void IPacketReceiver.ReceivePacket(byte[] octets, IPEndPoint fromEndpoint)
@@ -425,9 +427,9 @@ namespace Piot.Brisk.Connect
             {
                 return;
             }
-            log.Trace($"received packet:{octets.Length}");
             var stream = new InOctetStream(octets);
             var mode = stream.ReadUint8();
+            log.Trace($"received packet:{octets.Length} mode:{mode}");
             switch (mode)
             {
                 case NormalMode:
@@ -442,6 +444,10 @@ namespace Piot.Brisk.Connect
             }
         }
 
+        void IPacketReceiver.HandleException(Exception e)
+        {
+            receiveStream.HandleException(e);
+        }
         public ConnectionState ConnectionState
         {
             get

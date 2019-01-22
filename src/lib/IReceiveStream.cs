@@ -23,17 +23,20 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
 */
+using System;
 using Piot.Brook;
 using Piot.Tend.Client;
 
 namespace Piot.Brisk.Connect
 {
-	public interface IReceiveStream
-	{
-		void Receive(IInOctetStream stream, SequenceId sequenceId);
+    public interface IReceiveStream
+    {
+        void Receive(IInOctetStream stream, SequenceId sequenceId);
 
-		void Lost();
+        void Lost();
 
-		void PacketDelivery(SequenceId sequenceId, bool wasReceived);
-	}
+        void PacketDelivery(SequenceId sequenceId, bool wasReceived);
+
+        void HandleException(Exception e);
+    }
 }

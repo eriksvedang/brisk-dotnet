@@ -47,29 +47,9 @@
     <Compile Include="..\..\lib\PacketSequenceId.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Reference Include="BrookLib">
-      <HintPath>..\..\assemblies\BrookLib.dll</HintPath>
-    </Reference>
-    <Reference Include="FluxLib">
-      <HintPath>..\..\assemblies\FluxLib.dll</HintPath>
-    </Reference>
-    <Reference Include="Piot.Tend">
-      <HintPath>..\..\assemblies\Piot.Tend.dll</HintPath>
-    </Reference>
-    <Reference Include="LogLib">
-      <HintPath>..\..\assemblies\LogLib.dll</HintPath>
-    </Reference>
-  </ItemGroup>
-  <ItemGroup>
-    <Folder Include="..\..\lib\time\" />
-    <Folder Include="..\..\lib\simulationtime\" />
-    <Folder Include="..\..\lib\latency\" />
-    <Folder Include="..\..\lib\deserializers\" />
-  </ItemGroup>
-  <ItemGroup>
     <PackageReference Include="Tend" Version="1.0.7" />
     <PackageReference Include="Brook.Net" Version="1.1.0" />
     <PackageReference Include="Clog" Version="1.0.0" />
-    <PackageReference Include="Flux.Net" Version="1.0.0" />
+    <PackageReference Include="Flux.Net" Version="2.0.0" />
   </ItemGroup>
 </Project>
