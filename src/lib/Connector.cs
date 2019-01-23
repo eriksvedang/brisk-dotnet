@@ -136,7 +136,10 @@ namespace Piot.Brisk.Connect
 
         void SendChallenge(IOutOctetStream outStream)
         {
-            log.Debug("Sending Challenge!");
+            if (useDebugLogging)
+            {
+                log.Debug("Sending Challenge!");
+            }
             var challenge = new ChallengeRequest(challengeNonce);
 
             ChallengeRequestSerializer.Serialize(outStream, challenge);
@@ -153,7 +156,10 @@ namespace Piot.Brisk.Connect
 
         void SwitchState(ConnectionState newState, uint period)
         {
-            log.Debug($"State:{newState} period:{period}");
+            if (useDebugLogging)
+            {
+                log.Debug($"State:{newState} period:{period}");
+            }
             state = newState;
             stateChangeWait = period;
             lastStateChange = DateTime.UtcNow;
@@ -169,12 +175,18 @@ namespace Piot.Brisk.Connect
                 var tendSequenceId = tendOut.IncreaseOutgoingSequenceId();
                 WriteHeader(octetStream, NormalMode, outgoingSequenceNumber.Value, connectionId);
                 TendSerializer.Serialize(octetStream, tendIn, tendOut);
-                log.Trace($"SendOneUpdatePacket: tendSeq{tendSequenceId}");
+                if (useDebugLogging)
+                {
+                    log.Trace($"SendOneUpdatePacket: tendSeq{tendSequenceId}");
+                }
                 return sendStream.Send(octetStream, tendSequenceId);
             }
             else
             {
-                log.Trace("Can not send, forced to ping");
+                if (useDebugLogging)
+                {
+                    log.Trace("Can not send, forced to ping");
+                }
                 SendPing(octetStream);
                 return true;
             }
@@ -209,12 +221,18 @@ namespace Piot.Brisk.Connect
 
             if (octetsToSend.Length > 0)
             {
-                log.Trace($"Sending packet {ByteArrayToString(octetsToSend)}");
+                if (useDebugLogging)
+                {
+                    log.Trace($"Sending packet {ByteArrayToString(octetsToSend)}");
+                }
                 udpClient.Send(octetsToSend);
             }
             else
             {
-                log.Trace($"Strange nothing to send");
+                if (useDebugLogging)
+                {
+                    log.Trace($"Strange nothing to send");
+                }
 
             }
             return isCompleteSend;
@@ -231,8 +249,10 @@ namespace Piot.Brisk.Connect
 
             if (timeSinceReceivedHeader.Seconds > DisconnectTime)
             {
-
-                log.Debug($"Disconnect detected! #{timeSinceReceivedHeader.Seconds}");
+                if (useDebugLogging)
+                {
+                    log.Debug($"Disconnect detected! #{timeSinceReceivedHeader.Seconds}");
+                }
                 SwitchState(ConnectionState.Disconnected, 9999);
                 receiveStream.Lost();
             }
@@ -278,11 +298,17 @@ namespace Piot.Brisk.Connect
             var nonce = stream.ReadUint32();
             var assignedConnectionId = stream.ReadUint16();
 
-            log.Debug($"Challenge response {nonce:X} {assignedConnectionId:X}");
+            if (useDebugLogging)
+            {
+                log.Debug($"Challenge response {nonce:X} {assignedConnectionId:X}");
+            }
 
             if (nonce == challengeNonce)
             {
-                log.Debug($"We have a connection! {assignedConnectionId}");
+                if (useDebugLogging)
+                {
+                    log.Debug($"We have a connection! {assignedConnectionId}");
+                }
                 connectionId = assignedConnectionId;
                 SwitchState(ConnectionState.TimeSync, 100);
             }
@@ -306,7 +332,10 @@ namespace Piot.Brisk.Connect
 
             if (state != ConnectionState.TimeSync)
             {
-                log.Warning("We are not in timesync state anymore");
+                if (useDebugLogging)
+                {
+                    log.Warning("We are not in timesync state anymore");
+                }
                 return;
             }
             var echoedTicks = stream.ReadUint64();
@@ -356,7 +385,10 @@ namespace Piot.Brisk.Connect
             while (tendOut.Count > 0)
             {
                 var deliveryInfo = tendOut.Dequeue();
-                log.Debug($"we have deliveryInfo {deliveryInfo}");
+                if (useDebugLogging)
+                {
+                    log.Debug($"we have deliveryInfo {deliveryInfo}");
+                }
                 receiveStream.PacketDelivery(deliveryInfo.PacketSequenceId, deliveryInfo.WasDelivered);
             }
         }
@@ -364,7 +396,10 @@ namespace Piot.Brisk.Connect
         SequenceId HandleTend(IInOctetStream stream)
         {
             var info = TendDeserializer.Deserialize(stream);
-            log.Debug($"received tend {info} ");
+            if (useDebugLogging)
+            {
+                log.Debug($"received tend {info} ");
+            }
 
             tendIn.ReceivedToUs(info.PacketId);
             tendOut.ReceivedByRemote(info.Header);
@@ -412,13 +447,19 @@ namespace Piot.Brisk.Connect
                     }
                     else
                     {
-                        log.Warning($"Warning: out of sequence! expected {lastIncomingSequence.Next()} but received {headerSequenceId}");
+                        if (useDebugLogging)
+                        {
+                            log.Warning($"Warning: out of sequence! expected {lastIncomingSequence.Next()} but received {headerSequenceId}");
+                        }
                     }
                 }
             }
 
             lastValidHeader = DateTime.UtcNow;
-            log.Info($"Marked valid header...{lastValidHeader}");
+            if (useDebugLogging)
+            {
+                log.Info($"Marked valid header...{lastValidHeader}");
+            }
         }
 
         void IPacketReceiver.ReceivePacket(byte[] octets, IPEndPoint fromEndpoint)
@@ -429,7 +470,10 @@ namespace Piot.Brisk.Connect
             }
             var stream = new InOctetStream(octets);
             var mode = stream.ReadUint8();
-            log.Trace($"received packet:{octets.Length} mode:{mode}");
+            if (useDebugLogging)
+            {
+                log.Trace($"received packet:{octets.Length} mode:{mode}");
+            }
             switch (mode)
             {
                 case NormalMode:
