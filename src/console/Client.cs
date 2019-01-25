@@ -23,6 +23,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
 */
+using System;
 using Piot.Brisk;
 using Piot.Brisk.Connect;
 using Piot.Brook;
@@ -31,42 +32,63 @@ using Piot.Tend.Client;
 
 namespace BriskConsole
 {
-	class Client : IReceiveStream, ISendStream
-	{
-		readonly Connector connector;
-		readonly ILog log;
+    class Client : IReceiveStream, ISendStream
+    {
+        readonly Connector connector;
+        readonly ILog log;
 
-		public Client(ILog log, string hostnameAndPort)
-		{
-			this.log = log;
-			connector = new Connector(log, this, this);
-			connector.Connect(hostnameAndPort);
-		}
+        public Client(ILog log, string hostnameAndPort)
+        {
+            this.log = log;
+            connector = new Connector(log, this, this);
+            connector.Connect(hostnameAndPort);
+        }
 
-		public void Lost()
-		{
-			log.Debug("Disconnected!");
-		}
 
-		public void PacketDelivery(SequenceId sequenceId, bool wasReceived)
-		{
-			log.Debug("Packet delivered");
-		}
+        public void Lost()
+        {
+            log.Debug("Disconnected!");
+        }
 
-		public void Receive(IInOctetStream stream,SequenceId sequenceId)
-		{
-			log.Debug("Receiving packet...");
-		}
+        public void PacketDelivery(SequenceId sequenceId, bool wasReceived)
+        {
+            log.Debug("Packet delivered");
+        }
 
-		public void Update()
-		{
-			connector.Update();
-		}
+        public void Receive(IInOctetStream stream, SequenceId sequenceId)
+        {
+            log.Debug("Receiving packet...");
+        }
+
+        public void Update()
+        {
+            connector.Update();
+        }
+
+        void IReceiveStream.HandleException(Exception e)
+        {
+            throw new NotImplementedException();
+        }
+
+        void IReceiveStream.Lost()
+        {
+            throw new NotImplementedException();
+        }
+
+        void IReceiveStream.PacketDelivery(SequenceId sequenceId, bool wasReceived)
+        {
+            throw new NotImplementedException();
+        }
+
+        void IReceiveStream.Receive(IInOctetStream stream, SequenceId sequenceId)
+        {
+            throw new NotImplementedException();
+        }
 
         bool ISendStream.Send(IOutOctetStream stream, SequenceId sequenceId)
         {
             log.Debug("Sending packet...");
-			return true;
+            return true;
         }
     }
 }

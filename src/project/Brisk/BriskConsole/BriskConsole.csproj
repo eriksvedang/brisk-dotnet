@@ -7,10 +7,10 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Include="..\..\console\Program.cs">
+    <Compile Include="..\..\..\console\Program.cs">
       <Link>Program.cs</Link>
     </Compile>
-    <Compile Include="..\..\console\Client.cs">
+    <Compile Include="..\..\..\console\Client.cs">
       <Link>Client.cs</Link>
     </Compile>
   </ItemGroup>

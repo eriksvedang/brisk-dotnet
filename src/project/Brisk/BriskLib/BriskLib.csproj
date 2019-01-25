@@ -1,0 +1,83 @@
+<Project Sdk="Microsoft.NET.Sdk">
+    <PropertyGroup>
+        <TargetFramework>netstandard2.0</TargetFramework>
+        <BaseDirectory>..\..\lib</BaseDirectory>
+        <RootNamespace>Piot.Brisk</RootNamespace>
+        <PackageId>Brisk</PackageId>
+        <Version>3.2.0</Version>
+        <Authors>Piot</Authors>
+        <Description>Datagram connections</Description>
+        <PackageLicense>MIT</PackageLicense>
+        <PackageProjectUrl>https://github.com/Piot/brisk-dotnet</PackageProjectUrl>
+        <RepositoryUrl>https://github.com/piot/brisk-dotnet.git</RepositoryUrl>
+        <PacketReleaseNotes>updated dependencies</PacketReleaseNotes>
+        <IncludeSymbols>true</IncludeSymbols>
+    </PropertyGroup>
+    <ItemGroup>
+        <Compile Include="../../../lib/commands/ChallengeRequest.cs">
+            <Link>commands/ChallengeRequest.cs</Link>
+        </Compile>
+        <Compile Include="../../../lib/commands/PingRequestHeader.cs">
+            <Link>commands/PingRequestHeader.cs</Link>
+        </Compile>
+        <Compile Include="../../../lib/commands/PongResponseHeader.cs">
+            <Link>commands/PongResponseHeader.cs</Link>
+        </Compile>
+        <Compile Include="../../../lib/commands/TimeSyncRequest.cs">
+            <Link>commands/TimeSyncRequest.cs</Link>
+        </Compile>
+        <Compile Include="../../../lib/Connector.cs">
+            <Link>Connector.cs</Link>
+        </Compile>
+        <Compile Include="../../../lib/deserializers/PongResponseHeaderDeserializer.cs">
+            <Link>deserializers/PongResponseHeaderDeserializer.cs</Link>
+        </Compile>
+        <Compile Include="../../../lib/deserializers/TendDeserializer.cs">
+            <Link>deserializers/TendDeserializer.cs</Link>
+        </Compile>
+        <Compile Include="../../../lib/IReceiveStream.cs">
+            <Link>IReceiveStream.cs</Link>
+        </Compile>
+        <Compile Include="../../../lib/ISendStream.cs">
+            <Link>ISendStream.cs</Link>
+        </Compile>
+        <Compile Include="../../../lib/latency/LatencyCollection.cs">
+            <Link>latency/LatencyCollection.cs</Link>
+        </Compile>
+        <Compile Include="../../../lib/PacketSequenceId.cs">
+            <Link>PacketSequenceId.cs</Link>
+        </Compile>
+        <Compile Include="../../../lib/RandomGenerator.cs">
+            <Link>RandomGenerator.cs</Link>
+        </Compile>
+        <Compile Include="../../../lib/serializers/ChallengeRequestSerializer.cs">
+            <Link>serializers/ChallengeRequestSerializer.cs</Link>
+        </Compile>
+        <Compile Include="../../../lib/serializers/CommandValues.cs">
+            <Link>serializers/CommandValues.cs</Link>
+        </Compile>
+        <Compile Include="../../../lib/serializers/PingRequestHeaderSerializer.cs">
+            <Link>serializers/PingRequestHeaderSerializer.cs</Link>
+        </Compile>
+        <Compile Include="../../../lib/serializers/TendSerializer.cs">
+            <Link>serializers/TendSerializer.cs</Link>
+        </Compile>
+        <Compile Include="../../../lib/serializers/TimeSyncRequestSerializer.cs">
+            <Link>serializers/TimeSyncRequestSerializer.cs</Link>
+        </Compile>
+        <Compile Include="../../../lib/simulationtime/ElapsedSimulationFrame.cs">
+            <Link>simulationtime/ElapsedSimulationFrame.cs</Link>
+        </Compile>
+        <Compile Include="../../../lib/time/IMonotonicClock.cs">
+            <Link>time/IMonotonicClock.cs</Link>
+        </Compile>
+        <Compile Include="../../../lib/time/MonotonicClockStopwatch.cs">
+            <Link>time/MonotonicClockStopwatch.cs</Link>
+        </Compile>
+    </ItemGroup>
+    <ItemGroup>
+        <PackageReference Include="Tend" Version="1.0.7"></PackageReference>
+        <PackageReference Include="Brook.Net" Version="1.1.0"></PackageReference>
+        <PackageReference Include="Flux.Net" Version="2.0.0"></PackageReference>
+    </ItemGroup>
+</Project>
