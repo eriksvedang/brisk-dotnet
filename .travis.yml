@@ -2,8 +2,5 @@ language: csharp
 mono: none
 dotnet: 2.0.0
 
-install:
-  - dotnet restore src/project/Brisk.sln
-
 script:
-  - dotnet build src/project/Brisk.sln
+  - dotnet build src/project/Brisk/Brisk.sln
