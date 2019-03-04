@@ -36,6 +36,7 @@ using Piot.Brook.Octet;
 using Piot.Tend.Client;
 using Piot.Log;
 using Piot.Brisk.deserializers;
+using Piot.Brisk.Stats.In;
 
 namespace Piot.Brisk.Connect
 {
@@ -72,6 +73,8 @@ namespace Piot.Brisk.Connect
         DateTime lastValidHeader = DateTime.UtcNow;
         OutgoingLogic tendOut = new OutgoingLogic();
         IncomingLogic tendIn = new IncomingLogic();
+        IInStatsCollector inStatsCollector = new InStatsCollector();
+        IOutStatsCollector outStatsCollector = new OutStatsCollector();
 
         readonly bool useDebugLogging;
 
@@ -115,6 +118,16 @@ namespace Piot.Brisk.Connect
             outStream.WriteUint8(mode);
             outStream.WriteUint8(sequence);
             outStream.WriteUint16(connectionIdToSend);
+        }
+
+        public InStats FetchInStats(int maxCount)
+        {
+            return inStatsCollector.GetInfo(maxCount);
+        }
+
+        public OutStats FetchOutStats(int maxCount)
+        {
+            return outStatsCollector.GetInfo(maxCount);
         }
 
         void RequestTime(IOutOctetStream outStream)
@@ -218,6 +231,7 @@ namespace Piot.Brisk.Connect
             }
 
             var octetsToSend = octetStream.Close();
+            outStatsCollector.PacketSent(DateTime.Now, octetsToSend.Length);
 
             if (octetsToSend.Length > 0)
             {
@@ -417,7 +431,7 @@ namespace Piot.Brisk.Connect
 
 
 
-        void ReadHeader(IInOctetStream stream, byte mode)
+        void ReadHeader(IInOctetStream stream, byte mode, int packetOctetCount)
         {
             var sequence = stream.ReadUint8();
             var assignedConnectionId = stream.ReadUint16();
@@ -434,6 +448,14 @@ namespace Piot.Brisk.Connect
 
                     if (lastIncomingSequence.IsValidSuccessor(headerSequenceId))
                     {
+                        var diff = lastIncomingSequence.Distance(headerSequenceId);
+                        var timeStamp = DateTime.UtcNow;
+                        if (diff > 1)
+                        {
+                            inStatsCollector.PacketsDropped(timeStamp, diff - 1);
+                        }
+                        inStatsCollector.PacketReceived(timeStamp, packetOctetCount);
+
                         lastIncomingSequence = headerSequenceId;
 
                         if (mode == OobMode)
@@ -468,6 +490,7 @@ namespace Piot.Brisk.Connect
             {
                 return;
             }
+            var packetOctetCount = octets.Length;
             var stream = new InOctetStream(octets);
             var mode = stream.ReadUint8();
             if (useDebugLogging)
@@ -477,10 +500,10 @@ namespace Piot.Brisk.Connect
             switch (mode)
             {
                 case NormalMode:
-                    ReadHeader(stream, mode);
+                    ReadHeader(stream, mode, packetOctetCount);
                     break;
                 case OobMode:
-                    ReadHeader(stream, mode);
+                    ReadHeader(stream, mode, packetOctetCount);
                     break;
 
                 default:
