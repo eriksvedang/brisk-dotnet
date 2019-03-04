@@ -77,6 +77,12 @@
     <Compile Include="../../../lib/time/MonotonicClockStopwatch.cs">
       <Link>time/MonotonicClockStopwatch.cs</Link>
     </Compile>
+    <Compile Include="..\..\..\lib\stats\IInStatsCollector.cs" />
+    <Compile Include="..\..\..\lib\stats\IOutStatsCollector.cs" />
+    <Compile Include="..\..\..\lib\stats\InStats.cs" />
+    <Compile Include="..\..\..\lib\stats\InStatsCollector.cs" />
+    <Compile Include="..\..\..\lib\stats\OutStats.cs" />
+    <Compile Include="..\..\..\lib\stats\OutStatsCollector.cs" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Tend" Version="1.0.7"></PackageReference>
