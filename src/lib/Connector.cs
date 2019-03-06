@@ -75,14 +75,16 @@ namespace Piot.Brisk.Connect
         IncomingLogic tendIn = new IncomingLogic();
         IInStatsCollector inStatsCollector = new InStatsCollector();
         IOutStatsCollector outStatsCollector = new OutStatsCollector();
+        uint connectedPeriodInMs;
 
         readonly bool useDebugLogging;
 
-        public Connector(ILog log, IReceiveStream receiveStream, ISendStream sendStream)
+        public Connector(ILog log, IReceiveStream receiveStream, ISendStream sendStream, uint connectedPeriodInMs)
         {
             this.receiveStream = receiveStream;
             this.sendStream = sendStream;
             this.log = log;
+            this.connectedPeriodInMs = connectedPeriodInMs;
             this.useDebugLogging = useDebugLogging;
             monotonicClock = monotonicStopwatch;
         }
@@ -280,6 +282,7 @@ namespace Piot.Brisk.Connect
             {
                 return;
             }
+
             CheckDisconnect();
             const int burstCount = 3;
             for (var i = 0; i < burstCount; ++i)
@@ -289,6 +292,12 @@ namespace Piot.Brisk.Connect
                 {
                     break;
                 }
+            }
+
+            if (state == ConnectionState.Connected)
+            {
+                stateChangeWait = connectedPeriodInMs;
+                lastStateChange = DateTime.UtcNow;
             }
         }
 
@@ -324,7 +333,7 @@ namespace Piot.Brisk.Connect
                     log.Debug($"We have a connection! {assignedConnectionId}");
                 }
                 connectionId = assignedConnectionId;
-                SwitchState(ConnectionState.TimeSync, 100);
+                SwitchState(ConnectionState.TimeSync, connectedPeriodInMs);
             }
         }
 
