@@ -35,7 +35,7 @@ namespace Piot.Brisk.Stats.In
 
         void Add(PacketStatus p)
         {
-            const int MaxCount = 256;
+            const int MaxCount = 127;
             if (queue.Count > MaxCount)
             {
                 queue.Dequeue();

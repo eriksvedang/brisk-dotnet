@@ -4,10 +4,16 @@ using System.Collections.Generic;
 namespace Piot.Brisk.Stats.In
 {
 
-    public struct OutPacketStatus
+    public class OutPacketStatus
     {
-        public DateTime SavedAt;
+        public uint SequenceId;
+        public bool HasSequenceId;
+        public bool Delivered;
+        public long SavedAt;
         public int OctetSize;
+        public bool HasLatency;
+        public long Latency;
+        public bool HasDelivery;
     }
 
 
@@ -15,21 +21,63 @@ namespace Piot.Brisk.Stats.In
     {
         public Queue<OutPacketStatus> queue = new Queue<OutPacketStatus>();
 
-        void IOutStatsCollector.PacketSent(DateTime now, int octetCount)
+        void IOutStatsCollector.PacketSent(long now, int octetCount)
         {
             var p = new OutPacketStatus { SavedAt = now, OctetSize = octetCount };
             Add(p);
         }
 
+        void IOutStatsCollector.SequencePacketSent(uint sequenceId, long now, int octetCount)
+        {
+            var p = new OutPacketStatus { SequenceId = sequenceId, HasSequenceId = true, SavedAt = now, OctetSize = octetCount };
+            Add(p);
+        }
+
         void Add(OutPacketStatus p)
         {
-            const int MaxCount = 256;
+            const int MaxCount = 127;
             if (queue.Count > MaxCount)
             {
                 queue.Dequeue();
             }
 
             queue.Enqueue(p);
+        }
+
+
+        public bool UpdateLatency(uint sequenceId, long ms)
+        {
+            var wholeArray = queue.ToArray();
+            for (var i = 0; i < wholeArray.Length; ++i)
+            {
+                var packet = wholeArray[i];
+                if (packet.HasSequenceId && packet.SequenceId == sequenceId)
+                {
+                    packet.Latency = ms;
+                    packet.HasLatency = true;
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        public bool UpdateConfirmation(uint sequenceId, bool delivered)
+        {
+            var wholeArray = queue.ToArray();
+            for (var i = 0; i < wholeArray.Length; ++i)
+            {
+                var packet = wholeArray[i];
+
+                if (packet.HasSequenceId && packet.SequenceId == sequenceId)
+                {
+                    packet.Delivered = delivered;
+                    packet.HasDelivery = true;
+                    return true;
+                }
+            }
+
+            return false;
         }
 
         public OutStats GetInfo(int maxCount)
