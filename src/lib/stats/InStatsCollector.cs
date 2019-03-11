@@ -14,12 +14,14 @@ namespace Piot.Brisk.Stats.In
         public PacketState State;
         public DateTime SavedAt;
         public int OctetSize;
+        public int StatsPacketId;
     }
 
 
     public class InStatsCollector : IInStatsCollector
     {
         public Queue<PacketStatus> queue = new Queue<PacketStatus>();
+        int statsPacketId;
 
         void IInStatsCollector.PacketReceived(DateTime now, int octetCount)
         {
@@ -35,11 +37,13 @@ namespace Piot.Brisk.Stats.In
 
         void Add(PacketStatus p)
         {
+
             const int MaxCount = 127;
             if (queue.Count > MaxCount)
             {
                 queue.Dequeue();
             }
+            p.StatsPacketId = statsPacketId++;
 
             queue.Enqueue(p);
         }

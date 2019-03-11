@@ -427,6 +427,7 @@ namespace Piot.Brisk.Connect
                     log.Debug($"we have deliveryInfo {deliveryInfo}");
                 }
                 receiveStream.PacketDelivery(deliveryInfo.PacketSequenceId, deliveryInfo.WasDelivered);
+                outStatsCollector.UpdateConfirmation((uint)deliveryInfo.PacketSequenceId.Value, deliveryInfo.WasDelivered);
             }
         }
 

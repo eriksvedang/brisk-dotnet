@@ -14,12 +14,14 @@ namespace Piot.Brisk.Stats.In
         public bool HasLatency;
         public long Latency;
         public bool HasDelivery;
+        public int StatsPacketId;
     }
 
 
     public class OutStatsCollector : IOutStatsCollector
     {
         public Queue<OutPacketStatus> queue = new Queue<OutPacketStatus>();
+        int statsPacketId;
 
         void IOutStatsCollector.PacketSent(long now, int octetCount)
         {
@@ -40,6 +42,7 @@ namespace Piot.Brisk.Stats.In
             {
                 queue.Dequeue();
             }
+            p.StatsPacketId = statsPacketId++;
 
             queue.Enqueue(p);
         }
