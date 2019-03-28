@@ -4,7 +4,7 @@
     <RootNamespace></RootNamespace>
     <BaseDirectory>..\..\..\lib</BaseDirectory>
     <PackageId>Brisk</PackageId>
-    <Version>3.2.1</Version>
+    <Version>3.2.2</Version>
     <Authors>Piot</Authors>
     <Copyright>Copyright Peter Bjorklund 2017</Copyright>
     <PackageLicense>MIT</PackageLicense>
@@ -78,6 +78,7 @@
       <Link>time/MonotonicClockStopwatch.cs</Link>
     </Compile>
     <Compile Include="..\..\..\lib\stats\IInStatsCollector.cs" />
+    <Compile Include="..\..\..\lib\TimeStampedPacketHistory.cs" />
     <Compile Include="..\..\..\lib\stats\IOutStatsCollector.cs" />
     <Compile Include="..\..\..\lib\stats\InStats.cs" />
     <Compile Include="..\..\..\lib\stats\InStatsCollector.cs" />
@@ -85,7 +86,7 @@
     <Compile Include="..\..\..\lib\stats\OutStatsCollector.cs" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Tend" Version="1.0.7"></PackageReference>
+    <PackageReference Include="Tend" Version="1.0.8"></PackageReference>
     <PackageReference Include="Brook.Net" Version="1.1.0"></PackageReference>
     <PackageReference Include="Flux.Net" Version="2.0.0"></PackageReference>
   </ItemGroup>
