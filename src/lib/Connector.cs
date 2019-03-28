@@ -81,13 +81,21 @@ namespace Piot.Brisk.Connect
 
         readonly bool useDebugLogging;
 
-        public Connector(ILog log, IReceiveStream receiveStream, ISendStream sendStream, uint connectedPeriodInMs)
+        public Connector(ILog log, IReceiveStream receiveStream, ISendStream sendStream, uint frequency)
         {
             this.receiveStream = receiveStream;
             this.sendStream = sendStream;
             this.log = log;
-            this.connectedPeriodInMs = connectedPeriodInMs;
-            this.useDebugLogging = useDebugLogging;
+            if (frequency < 1)
+            {
+                frequency = 1;
+            }
+            if (frequency > 60)
+            {
+                frequency = 60;
+            }
+            this.connectedPeriodInMs = 1000 / frequency;
+            this.useDebugLogging = false;
             monotonicClock = monotonicStopwatch;
         }
 
@@ -427,7 +435,7 @@ namespace Piot.Brisk.Connect
                     log.Debug($"we have deliveryInfo {deliveryInfo}");
                 }
                 receiveStream.PacketDelivery(deliveryInfo.PacketSequenceId, deliveryInfo.WasDelivered);
-                outStatsCollector.UpdateConfirmation((uint)deliveryInfo.PacketSequenceId.Value, deliveryInfo.WasDelivered);
+                outStatsCollector.UpdateConfirmation(deliveryInfo.PacketSequenceId.Value, deliveryInfo.WasDelivered);
             }
         }
 
@@ -449,7 +457,11 @@ namespace Piot.Brisk.Connect
                 if (worked)
                 {
                     var latency = packetTime - foundItem.Time;
-                    outStatsCollector.UpdateLatency((uint)info.Header.SequenceId.Value, latency);
+                    var foundPacket = outStatsCollector.UpdateLatency((uint)info.Header.SequenceId.Value, latency);
+                    if (!foundPacket)
+                    {
+                        log.Warning("didnt find latency to update", "sequenceID", info.Header.SequenceId.Value);
+                    }
                 }
             }
             CallbackTend();
@@ -500,13 +512,6 @@ namespace Piot.Brisk.Connect
                         else
                         {
                             ReadConnectionPacket(stream, nowMs);
-                        }
-                    }
-                    else
-                    {
-                        if (useDebugLogging)
-                        {
-                            log.Warning($"Warning: out of sequence! expected {lastIncomingSequence.Next()} but received {headerSequenceId}");
                         }
                     }
                 }

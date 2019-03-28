@@ -1,5 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
+using System.Collections.Concurrent;
 
 namespace Piot.Brisk.Stats.In
 {
@@ -20,7 +20,7 @@ namespace Piot.Brisk.Stats.In
 
     public class InStatsCollector : IInStatsCollector
     {
-        public Queue<PacketStatus> queue = new Queue<PacketStatus>();
+        public ConcurrentQueue<PacketStatus> queue = new ConcurrentQueue<PacketStatus>();
         int statsPacketId;
 
         void IInStatsCollector.PacketReceived(DateTime now, int octetCount)
@@ -41,7 +41,8 @@ namespace Piot.Brisk.Stats.In
             const int MaxCount = 127;
             if (queue.Count > MaxCount)
             {
-                queue.Dequeue();
+                PacketStatus packetStatus;
+                queue.TryDequeue(out packetStatus);
             }
             p.StatsPacketId = statsPacketId++;
 
