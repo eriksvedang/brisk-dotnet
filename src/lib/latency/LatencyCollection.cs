@@ -28,81 +28,81 @@ using System.Collections.Generic;
 
 namespace Piot.Brisk
 {
-	public static class SumCollection
-	{
-		public static ushort Sum (ICollection<ushort> values)
-		{
-			var result = (ushort)0;
+    public static class SumCollection
+    {
+        public static ushort Sum(ICollection<ushort> values)
+        {
+            var result = (ushort)0;
 
-			foreach (var value in values)
-			{
-				result += value;
-			}
+            foreach (var value in values)
+            {
+                result += value;
+            }
 
-			return result;
-		}
-	}
+            return result;
+        }
+    }
 
-	public static class DeviationCollection
-	{
-		public static ushort Deviation (ICollection<ushort> values, ushort average)
-		{
-			var result = (ushort)0;
+    public static class DeviationCollection
+    {
+        public static ushort Deviation(ICollection<ushort> values, ushort average)
+        {
+            var result = (ushort)0;
 
-			foreach (var value in values)
-			{
-				var diff = (ushort)Math.Abs(value - average);
-				result += (ushort)(diff * diff);
-			}
+            foreach (var value in values)
+            {
+                var diff = (ushort)Math.Abs(value - average);
+                result += (ushort)(diff * diff);
+            }
 
-			return (ushort) Math.Sqrt(result / values.Count);
-		}
-	}
+            return (ushort)Math.Sqrt(result / values.Count);
+        }
+    }
 
-	public class LatencyCollection
-	{
-		List<ushort> latencies = new List<ushort> ();
+    public class LatencyCollection
+    {
+        List<ushort> latencies = new List<ushort>();
 
-		bool IsQueueFull
-		{
-			get
-			{
-				return latencies.Count >= 10;
-			}
-		}
+        bool IsQueueFull
+        {
+            get
+            {
+                return latencies.Count >= 10;
+            }
+        }
 
-		public void AddLatency(ushort latencyInMilliseconds)
-		{
-			if (IsQueueFull)
-			{
-				latencies.RemoveAt(0);
-			}
-			latencies.Add (latencyInMilliseconds);
-		}
+        public void AddLatency(ushort latencyInMilliseconds)
+        {
+            if (IsQueueFull)
+            {
+                latencies.RemoveAt(0);
+            }
+            latencies.Add(latencyInMilliseconds);
+        }
 
-		public bool StableLatency(out ushort latency)
-		{
-			latency = 0;
+        public bool StableLatency(out ushort latency)
+        {
+            latency = 0;
 
-			if (!IsQueueFull)
-			{
-				Console.Error.WriteLine($"NOT FULL:{latencies.Count}");
-				return false;
-			}
+            if (!IsQueueFull)
+            {
+                Console.Error.WriteLine($"NOT FULL:{latencies.Count}");
+                return false;
+            }
 
-			var sum = SumCollection.Sum (latencies);
-			var average = (ushort)(sum / latencies.Count);
-			var deviation = DeviationCollection.Deviation (latencies, average);
-			Console.Error.WriteLine($"Deviation:{deviation}");
+            var sum = SumCollection.Sum(latencies);
+            var average = (ushort)(sum / latencies.Count);
+            var deviation = DeviationCollection.Deviation(latencies, average);
+            Console.Error.WriteLine($"Deviation:{deviation}");
 
-			if (deviation > 10)
-			{
-				return false;
-			}
+            if (deviation > 10)
+            {
+                return false;
+            }
 
-			latency = average;
+            latency = average;
 
-			return true;
-		}
-	}
+            return true;
+        }
+    }
 }

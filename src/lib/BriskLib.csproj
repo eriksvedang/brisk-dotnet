@@ -1,0 +1,26 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <RootNamespace></RootNamespace>
+    <BaseDirectory>..\..\..\lib</BaseDirectory>
+    <PackageId>Brisk</PackageId>
+    <Version>3.2.2</Version>
+    <Authors>Piot</Authors>
+    <Copyright>Copyright Peter Bjorklund 2017</Copyright>
+    <PackageLicense>MIT</PackageLicense>
+    <PackageProjectUrl>https://github.com/Piot/brisk-dotnet</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/piot/brisk-dotnet.git</RepositoryUrl>
+    <PackageIconUrl></PackageIconUrl>
+    <PackageReleaseNotes>updated dependencies</PackageReleaseNotes>
+    <PackageTags></PackageTags>
+    <IncludeSymbols>true</IncludeSymbols>
+    <Description>Datagram connections</Description>
+  </PropertyGroup>
+  <ItemGroup>
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Tend" Version="1.0.8"></PackageReference>
+    <PackageReference Include="Brook.Net" Version="1.1.0"></PackageReference>
+    <PackageReference Include="Flux.Net" Version="2.0.0"></PackageReference>
+  </ItemGroup>
+</Project>

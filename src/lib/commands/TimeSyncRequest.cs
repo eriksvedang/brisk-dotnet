@@ -25,21 +25,21 @@ SOFTWARE.
 */
 namespace Piot.Brisk.Commands
 {
-	public class TimeSyncRequest
-	{
-		readonly long time;
+    public class TimeSyncRequest
+    {
+        readonly long time;
 
-		public TimeSyncRequest (long time)
-		{
-			this.time = time;
-		}
+        public TimeSyncRequest(long time)
+        {
+            this.time = time;
+        }
 
-		public long LocalElapsedMilliseconds
-		{
-			get
-			{
-				return time;
-			}
-		}
-	}
+        public long LocalElapsedMilliseconds
+        {
+            get
+            {
+                return time;
+            }
+        }
+    }
 }

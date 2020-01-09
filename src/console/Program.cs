@@ -23,31 +23,31 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
 */
-﻿ using System;
+using System;
 using Piot.Log;
 
 namespace BriskConsole
 {
-	class Program
-	{
-		static void Main(string[] args)
-		{
-			Console.Error.WriteLine("Brisk Console v0.1");
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            Console.Error.WriteLine("Brisk Console v0.1");
 
-			if (args.Length < 1)
-			{
-				return;
-			}
-			var hostString = args[0];
-			Console.Error.WriteLine($"Trying to connect to '{hostString}'");
-			var target = new ConsoleLogTarget();
-			var log = new Log(target);
-			var client = new Client(log, hostString);
+            if (args.Length < 1)
+            {
+                return;
+            }
+            var hostString = args[0];
+            Console.Error.WriteLine($"Trying to connect to '{hostString}'");
+            var target = new ConsoleLogTarget();
+            var log = new Log(target);
+            var client = new Client(log, hostString);
 
-			while (true)
-			{
-				client.Update();
-			}
-		}
-	}
+            while (true)
+            {
+                client.Update();
+            }
+        }
+    }
 }

@@ -29,12 +29,12 @@ using Piot.Tend.Client;
 
 namespace Piot.Brisk.Serializers
 {
-	public static class TimeSyncRequestSerializer
-	{
-		public static void Serialize (IOutOctetStream stream, TimeSyncRequest cmd)
-		{
-			stream.WriteUint8 (CommandValues.TimeSyncRequest);
-			stream.WriteUint64 ((ushort)cmd.LocalElapsedMilliseconds);
-		}
-	}
+    public static class TimeSyncRequestSerializer
+    {
+        public static void Serialize(IOutOctetStream stream, TimeSyncRequest cmd)
+        {
+            stream.WriteUint8(CommandValues.TimeSyncRequest);
+            stream.WriteUint64((ushort)cmd.LocalElapsedMilliseconds);
+        }
+    }
 }

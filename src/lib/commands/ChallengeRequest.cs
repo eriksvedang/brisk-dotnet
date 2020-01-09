@@ -25,20 +25,20 @@ SOFTWARE.
 */
 namespace Piot.Brisk.Commands
 {
-	public class ChallengeRequest
-	{
-		readonly uint nonce;
-		public ChallengeRequest(uint nonce)
-		{
-			this.nonce = nonce;
-		}
+    public class ChallengeRequest
+    {
+        readonly uint nonce;
+        public ChallengeRequest(uint nonce)
+        {
+            this.nonce = nonce;
+        }
 
-		public uint Nonce
-		{
-			get
-			{
-				return nonce;
-			}
-		}
-	}
+        public uint Nonce
+        {
+            get
+            {
+                return nonce;
+            }
+        }
+    }
 }

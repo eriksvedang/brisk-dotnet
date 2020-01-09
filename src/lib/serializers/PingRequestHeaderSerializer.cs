@@ -29,12 +29,12 @@ using Piot.Tend.Client;
 
 namespace Piot.Brisk.Serializers
 {
-	public static class PingRequestHeaderSerializer
-	{
-		public static void Serialize(IOutOctetStream stream, PingRequestHeader cmd)
-		{
-			stream.WriteUint8(CommandValues.PingRequest);
-			stream.WriteUint64((ushort)cmd.LocalElapsedMilliseconds);
-		}
-	}
+    public static class PingRequestHeaderSerializer
+    {
+        public static void Serialize(IOutOctetStream stream, PingRequestHeader cmd)
+        {
+            stream.WriteUint8(CommandValues.PingRequest);
+            stream.WriteUint64((ushort)cmd.LocalElapsedMilliseconds);
+        }
+    }
 }

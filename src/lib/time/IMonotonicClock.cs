@@ -25,8 +25,8 @@ SOFTWARE.
 */
 namespace Piot.Brisk.Time
 {
-	public interface IMonotonicClock
-	{
-		long NowMilliseconds ();
-	}
+    public interface IMonotonicClock
+    {
+        long NowMilliseconds();
+    }
 }

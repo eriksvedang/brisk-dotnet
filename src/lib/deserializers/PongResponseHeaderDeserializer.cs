@@ -29,13 +29,13 @@ using Piot.Brook;
 
 namespace Piot.Brisk.deserializers
 {
-	public static class PongResponseHeaderDeserializer
-	{
-		public static PongResponseHeader Deserialize(IInOctetStream stream)
-		{
-			var elapsedMilliseconds = (long)stream.ReadUint64();
+    public static class PongResponseHeaderDeserializer
+    {
+        public static PongResponseHeader Deserialize(IInOctetStream stream)
+        {
+            var elapsedMilliseconds = (long)stream.ReadUint64();
 
-			return new PongResponseHeader(elapsedMilliseconds);
-		}
-	}
+            return new PongResponseHeader(elapsedMilliseconds);
+        }
+    }
 }

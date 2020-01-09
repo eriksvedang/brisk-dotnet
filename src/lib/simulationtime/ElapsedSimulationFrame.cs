@@ -25,11 +25,11 @@ SOFTWARE.
 */
 namespace Piot.Brisk
 {
-	public static class ElapsedSimulationFrame
-	{
-		public static long FromElapsedMilliseconds(long ms)
-		{
-			return (long)(ms / (1000.0 / 60.0));
-		}
-	}
+    public static class ElapsedSimulationFrame
+    {
+        public static long FromElapsedMilliseconds(long ms)
+        {
+            return (long)(ms / (1000.0 / 60.0));
+        }
+    }
 }

@@ -27,13 +27,13 @@ using System.Diagnostics;
 
 namespace Piot.Brisk.Time
 {
-	public class MonotonicClockStopwatch : IMonotonicClock
-	{
-		readonly Stopwatch stopwatch = Stopwatch.StartNew ();
+    public class MonotonicClockStopwatch : IMonotonicClock
+    {
+        readonly Stopwatch stopwatch = Stopwatch.StartNew();
 
-		public long NowMilliseconds()
-		{
-			return stopwatch.ElapsedTicks / (Stopwatch.Frequency / 1000);
-		}
-	}
+        public long NowMilliseconds()
+        {
+            return stopwatch.ElapsedTicks / (Stopwatch.Frequency / 1000);
+        }
+    }
 }

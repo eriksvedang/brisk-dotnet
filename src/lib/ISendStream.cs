@@ -28,8 +28,8 @@ using Piot.Tend.Client;
 
 namespace Piot.Brisk.Connect
 {
-	public interface ISendStream
-	{
-		bool Send(IOutOctetStream stream, SequenceId sequenceId);
-	}
+    public interface ISendStream
+    {
+        bool Send(IOutOctetStream stream, SequenceId sequenceId);
+    }
 }

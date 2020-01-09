@@ -28,12 +28,12 @@ using Piot.Brook;
 
 namespace Piot.Brisk.Serializers
 {
-	public static class ChallengeRequestSerializer
-	{
-		public static void Serialize(IOutOctetStream stream, ChallengeRequest cmd)
-		{
-			stream.WriteUint8(CommandValues.ChallengeRequest);
-			stream.WriteUint32(cmd.Nonce);
-		}
-	}
+    public static class ChallengeRequestSerializer
+    {
+        public static void Serialize(IOutOctetStream stream, ChallengeRequest cmd)
+        {
+            stream.WriteUint8(CommandValues.ChallengeRequest);
+            stream.WriteUint32(cmd.Nonce);
+        }
+    }
 }

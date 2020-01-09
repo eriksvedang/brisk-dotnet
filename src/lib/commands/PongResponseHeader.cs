@@ -25,21 +25,21 @@ SOFTWARE.
 */
 namespace Piot.Brisk.Commands
 {
-	public class PongResponseHeader
-	{
-		readonly long time;
+    public class PongResponseHeader
+    {
+        readonly long time;
 
-		public PongResponseHeader(long time)
-		{
-			this.time = time;
-		}
+        public PongResponseHeader(long time)
+        {
+            this.time = time;
+        }
 
-		public long LocalElapsedMilliseconds
-		{
-			get
-			{
-				return time;
-			}
-		}
-	}
+        public long LocalElapsedMilliseconds
+        {
+            get
+            {
+                return time;
+            }
+        }
+    }
 }

@@ -23,23 +23,44 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
 */
-namespace Piot.Brisk.Commands
+namespace Piot.Brisk
 {
-    public class PingRequestHeader
-    {
-        readonly long time;
+    using System;
 
-        public PingRequestHeader(long time)
+    public static class ShortSimulationFrame
+    {
+        public static byte FromSimulationFrame(long simulationFrame)
         {
-            this.time = time;
+            return (byte)(simulationFrame & 0xff);
         }
 
-        public long LocalElapsedMilliseconds
+        public static int Delta(byte beforeShort, byte current)
         {
-            get
+            var delta = 0;
+
+            if (current < beforeShort)
             {
-                return time;
+                // Wrap around
+                delta = (256 - beforeShort) + current;
             }
+            else
+            {
+                delta = current - beforeShort;
+            }
+
+            if (delta > 127)
+            {
+                throw new Exception($"short simulation frames are too close {beforeShort} and {current}");
+            }
+
+            return delta;
+        }
+
+        public static long ToSimulationFrame(long simulationFrameReference, byte shortSimulationFrame)
+        {
+            var referenceShort = FromSimulationFrame(simulationFrameReference);
+            var delta = Delta(referenceShort, shortSimulationFrame);
+            return simulationFrameReference + delta;
         }
     }
 }

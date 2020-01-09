@@ -26,21 +26,21 @@ SOFTWARE.
 using System;
 namespace Piot.Brisk
 {
-	public class PacketSequenceId
-	{
-		private PacketSequenceId(uint id)
-		{
-			Value = id;
-		}
+    public class PacketSequenceId
+    {
+        private PacketSequenceId(uint id)
+        {
+            Value = id;
+        }
 
-		public static PacketSequenceId Create(uint id)
-		{
-			return new PacketSequenceId(id);
-		}
+        public static PacketSequenceId Create(uint id)
+        {
+            return new PacketSequenceId(id);
+        }
 
-		public uint Value
-		{
-			get;
-		}
-	}
+        public uint Value
+        {
+            get;
+        }
+    }
 }

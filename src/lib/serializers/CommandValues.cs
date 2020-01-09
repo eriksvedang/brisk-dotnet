@@ -25,13 +25,13 @@ SOFTWARE.
 */
 namespace Piot.Brisk.Serializers
 {
-	public static class CommandValues
-	{
-		public const byte ChallengeRequest = 0x01;
-		public const byte ChallengeResponse = 0x02;
-		public const byte TimeSyncRequest = 0x03;
-		public const byte TimeSyncResponse = 0x04;
-		public const byte PingRequest = 0x05;
-		public const byte PongResponse = 0x06;
-	}
+    public static class CommandValues
+    {
+        public const byte ChallengeRequest = 0x01;
+        public const byte ChallengeResponse = 0x02;
+        public const byte TimeSyncRequest = 0x03;
+        public const byte TimeSyncResponse = 0x04;
+        public const byte PingRequest = 0x05;
+        public const byte PongResponse = 0x06;
+    }
 }

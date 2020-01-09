@@ -28,23 +28,23 @@ using System.Security.Cryptography;
 
 namespace Piot.Brisk.Commands
 {
-	public static class RandomGenerator
-	{
-		public static uint RandomUInt()
-		{
-			var randomOctets = GenerateRandomOctets(sizeof(uint));
+    public static class RandomGenerator
+    {
+        public static uint RandomUInt()
+        {
+            var randomOctets = GenerateRandomOctets(sizeof(uint));
 
-			return BitConverter.ToUInt32(randomOctets, 0);
-		}
+            return BitConverter.ToUInt32(randomOctets, 0);
+        }
 
-		static byte[] GenerateRandomOctets(int octetCount)
-		{
-			var csp = new RNGCryptoServiceProvider();
-			var buffer = new byte[octetCount];
+        static byte[] GenerateRandomOctets(int octetCount)
+        {
+            var csp = new RNGCryptoServiceProvider();
+            var buffer = new byte[octetCount];
 
-			csp.GetBytes(buffer);
+            csp.GetBytes(buffer);
 
-			return buffer;
-		}
-	}
+            return buffer;
+        }
+    }
 }

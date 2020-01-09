@@ -29,14 +29,14 @@ using Piot.Tend.Client;
 
 namespace Piot.Brisk.Serializers
 {
-	public static class TendSerializer
-	{
-		public static void Serialize(IOutOctetStream stream, IncomingLogic tendIn, OutgoingLogic tendOut)
-		{
-			stream.WriteUint8(tendOut.OutgoingSequenceId.Value);
-			var header = tendIn.ReceivedHeader;
-			stream.WriteUint8(header.SequenceId.Value);
-			stream.WriteUint32(header.ReceivedBits.Bits);
-		}
-	}
+    public static class TendSerializer
+    {
+        public static void Serialize(IOutOctetStream stream, IncomingLogic tendIn, OutgoingLogic tendOut)
+        {
+            stream.WriteUint8(tendOut.OutgoingSequenceId.Value);
+            var header = tendIn.ReceivedHeader;
+            stream.WriteUint8(header.SequenceId.Value);
+            stream.WriteUint32(header.ReceivedBits.Bits);
+        }
+    }
 }
