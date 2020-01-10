@@ -23,24 +23,25 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
 */
-using System;
-using System.Collections.Generic;
-using System.Net;
-using System.Text;
-using Flux.Client.Datagram;
-using Piot.Brisk.Commands;
-using Piot.Brisk.Serializers;
-using Piot.Brisk.Time;
-using Piot.Brook;
-using Piot.Brook.Octet;
-using Piot.Tend.Client;
-using Piot.Log;
-using Piot.Brisk.deserializers;
-using Piot.Brisk.Stats.In;
-using Piot.Linger;
 
 namespace Piot.Brisk.Connect
 {
+    using System;
+    using System.Net;
+    using System.Text;
+    using Flux.Client.Datagram;
+    using Commands;
+    using Serializers;
+    using Time;
+    using Brook;
+    using Brook.Octet;
+    using Tend.Client;
+    using Log;
+    using deserializers;
+    using Stats.In;
+    using Linger;
+    using SimulationFrame;
+
     public enum ConnectionState
     {
         Challenge,
@@ -94,8 +95,8 @@ namespace Piot.Brisk.Connect
             {
                 frequency = 60;
             }
-            this.connectedPeriodInMs = 1000 / frequency;
-            this.useDebugLogging = false;
+            connectedPeriodInMs = 1000 / frequency;
+            useDebugLogging = false;
             monotonicClock = monotonicStopwatch;
         }
 
