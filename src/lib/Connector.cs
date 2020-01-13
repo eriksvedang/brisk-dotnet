@@ -79,6 +79,7 @@ namespace Piot.Brisk.Connect
         IInStatsCollector inStatsCollector = new InStatsCollector();
         IOutStatsCollector outStatsCollector = new OutStatsCollector();
         uint connectedPeriodInMs;
+        long connectedAt;
 
         readonly bool useDebugLogging;
 
@@ -118,11 +119,20 @@ namespace Piot.Brisk.Connect
             }
         }
 
-        public long RemoteMonotonicSimulationFrame
+        public AbsoluteSimulationFrame RemoteMonotonicSimulationFrame
         {
             get
             {
                 return ElapsedSimulationFrame.FromElapsedMilliseconds(RemoteMonotonicMilliseconds);
+            }
+        }
+        
+        
+        public long ConnectedAt
+        {
+            get
+            {
+                return connectedAt;
             }
         }
 
@@ -398,6 +408,7 @@ namespace Piot.Brisk.Connect
                 //log.Trace($"We are stable! latency:{averageLatency}");
                 localMillisecondsToRemoteMilliseconds = (long)remoteTimeIsNow - monotonicClock.NowMilliseconds();
                 latencies = new LatencyCollection();
+                connectedAt = monotonicClock.NowMilliseconds();
                 SwitchState(ConnectionState.Connected, 100);
             }
             else
