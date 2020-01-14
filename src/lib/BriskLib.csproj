@@ -4,7 +4,7 @@
     <RootNamespace></RootNamespace>
     <BaseDirectory>..\..\..\lib</BaseDirectory>
     <PackageId>Brisk</PackageId>
-    <Version>3.2.3-a1</Version>
+    <Version>3.2.3-a2</Version>
     <Authors>Piot</Authors>
     <Copyright>Copyright Peter Bjorklund 2017</Copyright>
     <PackageLicense>MIT</PackageLicense>
@@ -20,7 +20,7 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Tend" Version="1.0.8"></PackageReference>
-    <PackageReference Include="SimulationFrame" Version="0.0.1-a1"></PackageReference>
+    <PackageReference Include="SimulationFrame" Version="0.0.1-a2"></PackageReference>
     <PackageReference Include="Brook.Net" Version="1.1.0"></PackageReference>
     <PackageReference Include="Flux.Net" Version="2.0.0"></PackageReference>
   </ItemGroup>
