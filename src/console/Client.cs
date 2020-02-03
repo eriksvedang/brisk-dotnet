@@ -74,6 +74,10 @@ namespace BriskConsole
             throw new NotImplementedException();
         }
 
+        void IReceiveStream.OnTimeSynced()
+        {
+        }
+
         void IReceiveStream.PacketDelivery(SequenceId sequenceId, bool wasReceived)
         {
             throw new NotImplementedException();
