@@ -126,8 +126,8 @@ namespace Piot.Brisk.Connect
                 return ElapsedSimulationFrame.FromElapsedMilliseconds(RemoteMonotonicMilliseconds);
             }
         }
-        
-        
+
+
         public long ConnectedAt
         {
             get
@@ -199,6 +199,10 @@ namespace Piot.Brisk.Connect
             state = newState;
             stateChangeWait = period;
             lastStateChange = DateTime.UtcNow;
+            if (state == ConnectionState.Connected)
+            {
+                receiveStream.OnTimeSynced();
+            }
         }
 
 

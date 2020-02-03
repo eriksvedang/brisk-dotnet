@@ -4,7 +4,7 @@
     <RootNamespace></RootNamespace>
     <BaseDirectory>..\..\..\lib</BaseDirectory>
     <PackageId>Brisk</PackageId>
-    <Version>3.2.3-a2</Version>
+    <Version>3.2.3-a3</Version>
     <Authors>Piot</Authors>
     <Copyright>Copyright Peter Bjorklund 2017</Copyright>
     <PackageLicense>MIT</PackageLicense>

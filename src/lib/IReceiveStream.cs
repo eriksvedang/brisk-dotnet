@@ -35,6 +35,7 @@ namespace Piot.Brisk.Connect
 
         void Lost();
 
+        void OnTimeSynced();
         void PacketDelivery(SequenceId sequenceId, bool wasReceived);
 
         void HandleException(Exception e);
