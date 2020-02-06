@@ -33,8 +33,6 @@ namespace Piot.Brisk.Connect
     {
         void Receive(IInOctetStream stream, SequenceId sequenceId);
 
-        void OnTimeSynced();
-
         void Lost();
 
         void OnTimeSynced();

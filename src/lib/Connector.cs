@@ -205,8 +205,6 @@ namespace Piot.Brisk.Connect
             }
         }
 
-
-
         bool SendOneUpdatePacket(IOutOctetStream octetStream, out SequenceId sentSequenceId)
         {
             if (tendOut.CanIncrementOutgoingSequence)
@@ -491,8 +489,6 @@ namespace Piot.Brisk.Connect
 
             receiveStream.Receive(stream, packetId);
         }
-
-
 
         void ReadHeader(IInOctetStream stream, byte mode, int packetOctetCount, long nowMs)
         {
