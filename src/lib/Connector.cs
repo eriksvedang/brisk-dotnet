@@ -80,6 +80,7 @@ namespace Piot.Brisk.Connect
         IOutStatsCollector outStatsCollector = new OutStatsCollector();
         uint connectedPeriodInMs;
         long connectedAt;
+        long lastSentPackets;
 
         readonly bool useDebugLogging;
 
@@ -309,16 +310,17 @@ namespace Piot.Brisk.Connect
             }
         }
 
-        public void Update()
+        private void SendPackets()
         {
-            var diff = DateTime.UtcNow - lastStateChange;
+            var now = monotonicClock.NowMilliseconds();
 
-            if (diff.TotalMilliseconds < stateChangeWait)
+            var diff = now - lastSentPackets;
+            if (diff < 50)
             {
                 return;
             }
+            lastSentPackets = now;
 
-            CheckDisconnect();
             const int burstCount = 3;
             for (var i = 0; i < burstCount; ++i)
             {
@@ -328,6 +330,18 @@ namespace Piot.Brisk.Connect
                     break;
                 }
             }
+        }
+
+        public void Update()
+        {
+            var diff = DateTime.UtcNow - lastStateChange;
+            if (diff.TotalMilliseconds < stateChangeWait)
+            {
+                return;
+            }
+
+            CheckDisconnect();
+            SendPackets();
 
             if (state == ConnectionState.Connected)
             {
