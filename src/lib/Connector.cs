@@ -79,10 +79,11 @@ namespace Piot.Brisk.Connect
         IInStatsCollector inStatsCollector = new InStatsCollector();
         IOutStatsCollector outStatsCollector = new OutStatsCollector();
         uint connectedPeriodInMs;
-        long connectedAt;
         long lastSentPackets;
 
         readonly bool useDebugLogging;
+        private readonly UniqueSessionID sessionId;
+        public UniqueSessionID SessionId => sessionId;
 
         public Connector(ILog log, IReceiveStream receiveStream, ISendStream sendStream, uint frequency)
         {
@@ -100,6 +101,7 @@ namespace Piot.Brisk.Connect
             connectedPeriodInMs = 1000 / frequency;
             useDebugLogging = false;
             monotonicClock = monotonicStopwatch;
+            sessionId = RandomGenerator.RandomUniqueSessionId();
         }
 
         public void Connect(string hostAndPort)
@@ -120,22 +122,10 @@ namespace Piot.Brisk.Connect
             }
         }
 
-        public AbsoluteSimulationFrame RemoteMonotonicSimulationFrame
-        {
-            get
-            {
-                return ElapsedSimulationFrame.FromElapsedMilliseconds(RemoteMonotonicMilliseconds);
-            }
-        }
+        public AbsoluteSimulationFrame RemoteMonotonicSimulationFrame => ElapsedSimulationFrame.FromElapsedMilliseconds(RemoteMonotonicMilliseconds);
 
 
-        public long ConnectedAt
-        {
-            get
-            {
-                return connectedAt;
-            }
-        }
+        public long ConnectedAt { get; private set; }
 
         static void WriteHeader(IOutOctetStream outStream, byte mode, byte sequence, ushort connectionIdToSend)
         {
@@ -177,7 +167,7 @@ namespace Piot.Brisk.Connect
             {
                 log.Debug("Sending Challenge!");
             }
-            var challenge = new ChallengeRequest(challengeNonce);
+            var challenge = new ChallengeRequest(challengeNonce, sessionId);
 
             ChallengeRequestSerializer.Serialize(outStream, challenge);
             lastStateChange = DateTime.UtcNow;
@@ -238,6 +228,7 @@ namespace Piot.Brisk.Connect
         void StartChallenge()
         {
             challengeNonce = RandomGenerator.RandomUInt();
+
         }
 
         bool SendOnePacket()
@@ -259,6 +250,10 @@ namespace Piot.Brisk.Connect
                 case ConnectionState.Connected:
                     isCompleteSend = SendOneUpdatePacket(octetStream, out sentSequenceNumber);
                     break;
+                case ConnectionState.Disconnected:
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException();
             }
 
             var octetsToSend = octetStream.Close();
@@ -424,7 +419,7 @@ namespace Piot.Brisk.Connect
                 //log.Trace($"We are stable! latency:{averageLatency}");
                 localMillisecondsToRemoteMilliseconds = (long)remoteTimeIsNow - monotonicClock.NowMilliseconds();
                 latencies = new LatencyCollection();
-                connectedAt = monotonicClock.NowMilliseconds();
+                ConnectedAt = monotonicClock.NowMilliseconds();
                 SwitchState(ConnectionState.Connected, 100);
             }
             else

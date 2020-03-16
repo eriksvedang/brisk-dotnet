@@ -26,7 +26,7 @@ SOFTWARE.
 using System;
 using System.Security.Cryptography;
 
-namespace Piot.Brisk.Commands
+namespace Piot.Brisk
 {
     public static class RandomGenerator
     {
@@ -35,6 +35,15 @@ namespace Piot.Brisk.Commands
             var randomOctets = GenerateRandomOctets(sizeof(uint));
 
             return BitConverter.ToUInt32(randomOctets, 0);
+        }
+
+
+        public static UniqueSessionID RandomUniqueSessionId()
+        {
+            var guid = Guid.NewGuid();
+            var octets = guid.ToByteArray();
+
+            return new UniqueSessionID(octets);
         }
 
         static byte[] GenerateRandomOctets(int octetCount)
