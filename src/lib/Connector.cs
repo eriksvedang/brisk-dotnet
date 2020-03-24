@@ -104,6 +104,11 @@ namespace Piot.Brisk.Connect
             sessionId = RandomGenerator.RandomUniqueSessionId();
         }
 
+        public void Dispose()
+        {
+
+        }
+
         public void Connect(string hostAndPort)
         {
             udpClient = new Client(hostAndPort, this);
