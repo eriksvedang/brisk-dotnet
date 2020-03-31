@@ -4,10 +4,10 @@
     <RootNamespace></RootNamespace>
     <BaseDirectory>..\..\..\lib</BaseDirectory>
     <PackageId>Brisk</PackageId>
-    <Version>3.2.3-a5</Version>
+    <Version>3.2.3-a6</Version>
     <Authors>Piot</Authors>
     <Copyright>Copyright Peter Bjorklund 2017</Copyright>
-    <PackageLicense>MIT</PackageLicense>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageProjectUrl>https://github.com/Piot/brisk-dotnet</PackageProjectUrl>
     <RepositoryUrl>https://github.com/piot/brisk-dotnet.git</RepositoryUrl>
     <PackageIconUrl></PackageIconUrl>
