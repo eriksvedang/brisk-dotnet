@@ -3,7 +3,6 @@ using System.Collections.Generic;
 
 namespace Piot.Brisk.Stats.In
 {
-
     public class OutPacketStatus
     {
         public uint SequenceId;
@@ -15,6 +14,22 @@ namespace Piot.Brisk.Stats.In
         public long Latency;
         public bool HasDelivery;
         public int StatsPacketId;
+
+        public override string ToString()
+        {
+            var s = $"[outstatus size:{OctetSize}";
+            if (HasLatency)
+            {
+                s += $" latency: {Latency}";
+            }
+            if (HasDelivery)
+            {
+                s += $" delivery: {Delivered}";
+            }
+
+            s += "]";
+            return s;
+        }
     }
 
 

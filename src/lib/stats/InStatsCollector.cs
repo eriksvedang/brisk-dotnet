@@ -15,6 +15,11 @@ namespace Piot.Brisk.Stats.In
         public DateTime SavedAt;
         public int OctetSize;
         public int StatsPacketId;
+
+        public override string ToString()
+        {
+            return $"[packet status {State} size: {OctetSize} packetId: {StatsPacketId}]";
+        }
     }
 
 
