@@ -53,11 +53,6 @@ namespace Piot.Brisk.Connect
         Disconnected
     }
 
-    public enum SendMode
-    {
-        Frequency,
-        Push,
-    }
 
     public class Connector : IPacketReceiver
     {
@@ -88,8 +83,6 @@ namespace Piot.Brisk.Connect
         IOutStatsCollector outStatsCollector = new OutStatsCollector();
         uint connectedPeriodInMs;
         long lastSentPackets;
-        private SendMode sendMode = SendMode.Frequency;
-
         private IOutOctetStream pendingOutOctetStream;
         private SequenceId pendingOutSequenceNumber;
 
@@ -109,11 +102,6 @@ namespace Piot.Brisk.Connect
         public Connector(ILog log, uint frequency)
         {
             this.log = log;
-
-            if (frequency == 0)
-            {
-                sendMode = SendMode.Push;
-            }
 
             if (frequency < 1)
             {
@@ -365,7 +353,6 @@ namespace Piot.Brisk.Connect
             }
         }
 
-
         void StartChallenge()
         {
             challengeNonce = RandomGenerator.RandomUInt();
@@ -400,7 +387,7 @@ namespace Piot.Brisk.Connect
             {
                 var now = monotonicClock.NowMilliseconds();
                 var diff = now - lastSentPackets;
-                return diff > 50;
+                return diff >= 33;
             }
         }
 
@@ -419,12 +406,12 @@ namespace Piot.Brisk.Connect
             }
 
             var statsDiff = monotonicClock.NowMilliseconds() - lastStatsUpdate;
-            if (statsDiff > 2000)
+            if (statsDiff > 3000)
             {
                 simpleInStats = simpleIn.GetStatsAndClear(statsDiff);
                 simpleOutStats = simpleOut.GetStatsAndClear(statsDiff);
+                lastStatsUpdate = monotonicClock.NowMilliseconds();
             }
-
 
             CheckDisconnect();
 
@@ -439,7 +426,7 @@ namespace Piot.Brisk.Connect
         {
             StringBuilder hex = new StringBuilder(ba.Length * 2);
 
-            foreach (byte b in ba)
+            foreach (var b in ba)
             {
                 hex.AppendFormat("{0:x2}", b);
             }
@@ -575,6 +562,8 @@ namespace Piot.Brisk.Connect
                     {
                         log.Warning("didnt find latency to update", "sequenceID", info.Header.SequenceId.Value);
                     }
+
+                    simpleOut.AddLatency(latency);
                 }
             }
             CallbackTend();
