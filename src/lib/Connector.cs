@@ -85,6 +85,7 @@ namespace Piot.Brisk.Connect
         long lastSentPackets;
         private IOutOctetStream pendingOutOctetStream;
         private SequenceId pendingOutSequenceNumber;
+        private bool pendingOutSequenceNumberUsed;
 
         readonly bool useDebugLogging;
         private readonly UniqueSessionID sessionId;
@@ -265,13 +266,13 @@ namespace Piot.Brisk.Connect
 
         public bool WriteUpdatePayload(IOutOctetStream octetStream)
         {
-            SequenceId sentSequenceNumber = null;
-
             var canSendUpdatePacket = tendOut.CanIncrementOutgoingSequence;
+            pendingOutSequenceNumberUsed = false;
             if (canSendUpdatePacket)
             {
                 outgoingSequenceNumber = outgoingSequenceNumber.Next();
                 pendingOutSequenceNumber = outgoingSequenceNumber;
+                pendingOutSequenceNumberUsed = true;
                 var tendSequenceId = tendOut.IncreaseOutgoingSequenceId();
                 WriteHeader(octetStream, NormalMode, outgoingSequenceNumber.Value, connectionId);
                 TendSerializer.Serialize(octetStream, tendIn, tendOut);
@@ -293,7 +294,6 @@ namespace Piot.Brisk.Connect
         {
             var octetStream = new OutOctetStream();
             pendingOutOctetStream = octetStream;
-            SequenceId sentSequenceNumber = null;
             var wasUpdate = false;
             switch (state)
             {
@@ -316,14 +316,14 @@ namespace Piot.Brisk.Connect
 
             var streamToReturn = wasUpdate ? octetStream : null;
 
-            return (streamToReturn, sentSequenceNumber, wasUpdate);
+            return (streamToReturn, pendingOutSequenceNumber, wasUpdate);
         }
 
         public void SendPreparedPacket(IOutOctetStream reference)
         {
             var octetsToSend = pendingOutOctetStream.Close();
             var now = monotonicClock.NowMilliseconds();
-            if (pendingOutSequenceNumber != null)
+            if (pendingOutSequenceNumberUsed)
             {
                 outStatsCollector.SequencePacketSent(pendingOutSequenceNumber.Value, now, octetsToSend.Length);
             }

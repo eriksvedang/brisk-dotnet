@@ -40,7 +40,7 @@ namespace BriskConsole
         public Client(ILog log, string hostnameAndPort)
         {
             this.log = log;
-            connector = new Connector(log, this, this, 10);
+            connector = new Connector(log, 30);
             connector.Connect(hostnameAndPort);
         }
 

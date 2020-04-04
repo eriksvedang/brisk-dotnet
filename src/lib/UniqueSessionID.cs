@@ -1,6 +1,6 @@
 namespace Piot.Brisk
 {
-    using System;
+    using Utils;
 
     public struct UniqueSessionID
     {
@@ -13,7 +13,7 @@ namespace Piot.Brisk
 
         public override string ToString()
         {
-            var hexString = BitConverter.ToString(Value).Replace("-", string.Empty);
+            var hexString = HexConverter.ToString(Value, 128);
             return $"[unique session id {hexString}]";
         }
     }
