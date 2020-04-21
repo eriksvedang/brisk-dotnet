@@ -310,8 +310,10 @@ namespace Piot.Brisk.Connect
                     break;
                 case ConnectionState.Disconnected:
                     break;
+                case ConnectionState.Idle:
+                    break;
                 default:
-                    throw new ArgumentOutOfRangeException();
+                    throw new ArgumentOutOfRangeException("unknown state");
             }
 
             var streamToReturn = wasUpdate ? octetStream : null;
