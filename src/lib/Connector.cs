@@ -26,23 +26,23 @@ SOFTWARE.
 
 namespace Piot.Brisk.Connect
 {
-    using System;
     using System.Diagnostics;
     using System.Net;
     using System.Text;
-    using Flux.Client.Datagram;
-    using Commands;
-    using Serializers;
-    using Time;
-    using Brook;
+    using System;
     using Brook.Octet;
-    using Tend.Client;
-    using Log;
+    using Brook;
+    using Commands;
     using deserializers;
-    using Stats.In;
+    using Flux.Client.Datagram;
     using Linger;
+    using Log;
+    using Serializers;
     using SimulationFrame;
+    using Stats.In;
     using Stats;
+    using Tend.Client;
+    using Time;
 
     public enum ConnectionState
     {
@@ -52,7 +52,6 @@ namespace Piot.Brisk.Connect
         Connected,
         Disconnected
     }
-
 
     public class Connector : IPacketReceiver
     {
@@ -179,7 +178,6 @@ namespace Piot.Brisk.Connect
 
         public AbsoluteSimulationFrame RemoteMonotonicSimulationFrame =>
             ElapsedSimulationFrame.FromElapsedMilliseconds(RemoteMonotonicMilliseconds);
-
 
         public long ConnectedAt { get; private set; }
 
@@ -460,9 +458,7 @@ namespace Piot.Brisk.Connect
             }
         }
 
-        void OnPongResponseCmd(PongResponseHeader response)
-        {
-        }
+        void OnPongResponseCmd(PongResponseHeader response) { }
 
         void OnPongResponse(IInOctetStream stream, long packetTime)
         {
@@ -549,7 +545,6 @@ namespace Piot.Brisk.Connect
                 log.Debug($"received tend {info} ");
             }
 
-
             tendIn.ReceivedToUs(info.PacketId);
             var valid = tendOut.ReceivedByRemote(info.Header);
             if (valid)
@@ -565,7 +560,7 @@ namespace Piot.Brisk.Connect
                         log.Warning("didnt find latency to update", "sequenceID", info.Header.SequenceId.Value);
                     }
 
-                    simpleOut.AddLatency(latency);
+                    //simpleOut.AddLatency(latency);
                 }
             }
             CallbackTend();
