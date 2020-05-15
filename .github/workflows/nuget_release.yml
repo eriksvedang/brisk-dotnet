@@ -28,5 +28,5 @@ jobs:
         uses: piot/action-nuget-pack-push@master
         with:
           nuget-api-key: ${{ secrets.NUGET_API_KEY }}
-          workspace: src/lib/
+          workspace: src/project/Brisk/BriskLib/
           version: ${{ steps.fetchver.outputs.version }}
