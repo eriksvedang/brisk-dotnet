@@ -1,0 +1,32 @@
+on:
+  push:
+    tags:
+      - "v*"
+
+name: Upload nuget package
+jobs:
+  build:
+    name: Create and Upload
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout the repository
+        uses: actions/checkout@master
+
+      - name: Install dotnet core
+        uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: "3.1.202"
+
+      - name: Fetch version
+        id: fetchver
+        uses: piot/action-version-from-tag@master
+
+      - name: Setup nuget
+        uses: piot/action-setup-nuget@master
+
+      - name: Pack specific version
+        uses: piot/action-nuget-pack-push@master
+        with:
+          nuget-api-key: ${{ secrets.NUGET_API_KEY }}
+          workspace: src/lib/
+          version: ${{ steps.fetchver.outputs.version }}
