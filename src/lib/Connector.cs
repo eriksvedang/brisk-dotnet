@@ -99,6 +99,8 @@ namespace Piot.Brisk.Connect
         private SimpleStats simpleOutStats;
         private long lastStatsUpdate;
 
+        public float disconnectTimeout = 3;
+
         public Connector(ILog log, uint frequency)
         {
             this.log = log;
@@ -361,19 +363,18 @@ namespace Piot.Brisk.Connect
 
         void CheckDisconnect()
         {
-            if (state == ConnectionState.Challenge)
+            if (state == ConnectionState.Idle || state == ConnectionState.Challenge)
             {
                 return;
             }
 
             var timeSinceReceivedHeader = monotonicClock.NowMilliseconds() - lastValidHeader;
-            const int DisconnectTime = 3;
 
-            if (timeSinceReceivedHeader > DisconnectTime * 1000)
+            if (timeSinceReceivedHeader > disconnectTimeout * 1000)
             {
                 if (useDebugLogging)
                 {
-                    log.Debug($"Disconnect detected! #{timeSinceReceivedHeader}");
+                    log.Warning($"Disconnect detected! #{timeSinceReceivedHeader}");
                 }
 
                 SwitchState(ConnectionState.Disconnected, 9999);
