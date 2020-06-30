@@ -101,6 +101,9 @@ namespace Piot.Brisk.Connect
 
         public float disconnectTimeout = 3;
 
+        public float disconnectTimeout = 3;
+        public bool syncTimeOnConnect;
+
         public Connector(ILog log, uint frequency)
         {
             this.log = log;
@@ -455,7 +458,15 @@ namespace Piot.Brisk.Connect
                     log.Debug($"We have a connection! {assignedConnectionId}");
                 }
                 connectionId = assignedConnectionId;
-                SwitchState(ConnectionState.TimeSync, connectedPeriodInMs);
+                if (syncTimeOnConnect)
+                {
+                    SwitchState(ConnectionState.TimeSync, connectedPeriodInMs);
+                }
+                else
+                {
+                    ConnectedAt = monotonicClock.NowMilliseconds();
+                    SwitchState(ConnectionState.Connected, 100);
+                }
             }
         }
 
