@@ -101,7 +101,6 @@ namespace Piot.Brisk.Connect
 
         public float disconnectTimeout = 3;
 
-        public float disconnectTimeout = 3;
         public bool syncTimeOnConnect;
 
         public Connector(ILog log, uint frequency)
