@@ -23,17 +23,30 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
 */
-namespace Piot.Brisk.Serializers
+namespace Piot.Brisk.Commands
 {
-    public static class CommandValues
+    public struct ConnectInfo
     {
-        public const byte ChallengeRequest = 0x01;
-        public const byte ChallengeResponse = 0x02;
-        public const byte TimeSyncRequest = 0x03;
-        public const byte TimeSyncResponse = 0x04;
-        public const byte PingRequest = 0x05;
-        public const byte PongResponse = 0x06;
-        public const byte ConnectRequest = 0x07;
-        public const byte ConnectResponse = 0x08;
+        public ConnectInfo(NameVersion briskVersion, NameVersion sdkVersion,
+            NameVersion schemaVersion, NameVersion applicationVersion, uint remoteNonce)
+        {
+            BriskVersion = briskVersion;
+            SdkVersion = sdkVersion;
+            SchemaVersion = schemaVersion;
+            ApplicationVersion = applicationVersion;
+            RemoteNonce = remoteNonce;
+        }
+
+        public NameVersion BriskVersion;
+        public NameVersion SdkVersion;
+        public NameVersion SchemaVersion;
+        public NameVersion ApplicationVersion;
+
+        public uint RemoteNonce;
+
+        public override string ToString() 
+        {
+            return $"connect info {BriskVersion} {SdkVersion} {SchemaVersion} {ApplicationVersion}";
+        }
     }
 }

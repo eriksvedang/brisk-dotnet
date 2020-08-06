@@ -23,17 +23,18 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
 */
+using System.Text;
+using Piot.Brook;
+
 namespace Piot.Brisk.Serializers
 {
-    public static class CommandValues
+    public static class StringSerializer
     {
-        public const byte ChallengeRequest = 0x01;
-        public const byte ChallengeResponse = 0x02;
-        public const byte TimeSyncRequest = 0x03;
-        public const byte TimeSyncResponse = 0x04;
-        public const byte PingRequest = 0x05;
-        public const byte PongResponse = 0x06;
-        public const byte ConnectRequest = 0x07;
-        public const byte ConnectResponse = 0x08;
+        public static void Serialize(IOutOctetStream stream, string value)
+        {
+            var octets = Encoding.UTF8.GetBytes(value);
+            stream.WriteUint8((byte)octets.Length);
+            stream.WriteOctets(octets);
+        }
     }
 }

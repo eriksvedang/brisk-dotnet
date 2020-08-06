@@ -25,6 +25,7 @@ SOFTWARE.
 */
 using System;
 using Piot.Brisk;
+using Piot.Brisk.Commands;
 using Piot.Brisk.Connect;
 using Piot.Brook;
 using Piot.Log;
@@ -41,7 +42,10 @@ namespace BriskConsole
         {
             this.log = log;
             connector = new Connector(log, 30);
-            connector.Connect(hostnameAndPort);
+            var info = new ConnectInfo {
+
+            };
+            connector.Connect(hostnameAndPort, info);
         }
 
         public void Lost()

@@ -23,17 +23,52 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
 */
-namespace Piot.Brisk.Serializers
+namespace Piot.Brisk.Commands
 {
-    public static class CommandValues
+    public struct NameVersion
     {
-        public const byte ChallengeRequest = 0x01;
-        public const byte ChallengeResponse = 0x02;
-        public const byte TimeSyncRequest = 0x03;
-        public const byte TimeSyncResponse = 0x04;
-        public const byte PingRequest = 0x05;
-        public const byte PongResponse = 0x06;
-        public const byte ConnectRequest = 0x07;
-        public const byte ConnectResponse = 0x08;
+        public Version Version;
+        public string Name;
+
+        public NameVersion(string name, Version version)
+        {
+            Name = name;
+            Version = version;
+        }
+
+        public override string ToString() 
+        {
+            return $"{Name} {Version}";
+        }
+    }
+
+    public struct Version
+    {
+        public ushort Major;
+        public ushort Minor;
+        public ushort Patch;
+
+        public string Prerelease;
+
+        public Version(ushort major, ushort minor, ushort patch, string prerelease)
+        {
+            Major = major;
+            Minor = minor;
+            Patch = patch;
+            Prerelease = prerelease;
+        }
+        
+
+        public override string ToString() 
+        {
+            var s = $"{Major}.{Minor}.{Patch}";
+            
+            if (Prerelease.Length != 0) 
+            {
+                s += $"-{Prerelease}";
+            }
+
+            return s;
+        }
     }
 }

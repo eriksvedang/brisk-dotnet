@@ -27,13 +27,16 @@ namespace Piot.Brisk.Commands
 {
     public class ChallengeRequest
     {
-        public ChallengeRequest(uint nonce, UniqueSessionID sessionId)
+        public ChallengeRequest(uint nonce)
         {
             Nonce = nonce;
-            SessionId = sessionId;
         }
 
         public uint Nonce { get; }
-        public UniqueSessionID SessionId { get; }
+
+        public override string ToString() 
+        {
+            return $"challenge request {Nonce}";
+        }
     }
 }

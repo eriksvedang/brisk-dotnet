@@ -23,17 +23,22 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
 */
-namespace Piot.Brisk.Serializers
+namespace Piot.Brisk.Commands
 {
-    public static class CommandValues
+    public struct ChallengeResponse
     {
-        public const byte ChallengeRequest = 0x01;
-        public const byte ChallengeResponse = 0x02;
-        public const byte TimeSyncRequest = 0x03;
-        public const byte TimeSyncResponse = 0x04;
-        public const byte PingRequest = 0x05;
-        public const byte PongResponse = 0x06;
-        public const byte ConnectRequest = 0x07;
-        public const byte ConnectResponse = 0x08;
+        public ChallengeResponse(uint nonce, uint remoteNonce)
+        {
+            Nonce = nonce;
+            RemoteNonce = remoteNonce;
+        }
+
+        public uint Nonce;
+        public uint RemoteNonce;
+
+        public override string ToString() 
+        {
+            return $"challenge response My:{Nonce:X} Remote:{RemoteNonce:X}";
+        }
     }
 }
