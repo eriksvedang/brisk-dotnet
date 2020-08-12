@@ -122,7 +122,8 @@ namespace Piot.Brisk.Connect
             monotonicClock = monotonicStopwatch;
             incomingPacketBuffer = new PacketBuffer(monotonicClock);
             sessionId = RandomGenerator.RandomUniqueSessionId();
-            udpClient = new Client(this);
+            var port = new Flux.Client.Datagram.UdpClient();
+            udpClient = new Client(this, port);
             Reset();
         }
 
