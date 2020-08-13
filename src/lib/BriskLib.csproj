@@ -21,6 +21,6 @@
     <PackageReference Include="Tend" Version="1.0.10"></PackageReference>
     <PackageReference Include="SimulationFrame" Version="0.0.1-a2"></PackageReference>
     <PackageReference Include="Brook.Net" Version="1.2.5"></PackageReference>
-    <PackageReference Include="Flux.Net" Version="3.0.2"></PackageReference>
+    <PackageReference Include="Flux.Net" Version="4.0.2"></PackageReference>
   </ItemGroup>
 </Project>
