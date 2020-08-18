@@ -25,6 +25,7 @@ SOFTWARE.
 */
 using System;
 using Piot.Brisk;
+using Piot.Brisk.Commands;
 using Piot.Brisk.Connect;
 using Piot.Brook;
 using Piot.Log;
@@ -32,7 +33,9 @@ using Piot.Tend.Client;
 
 namespace BriskConsole
 {
-    class Client : IReceiveStream, ISendStream
+    using Version = Piot.Brisk.Commands.Version;
+
+    class Client
     {
         readonly Connector connector;
         readonly ILog log;
@@ -41,57 +44,43 @@ namespace BriskConsole
         {
             this.log = log;
             connector = new Connector(log, 30);
-            connector.Connect(hostnameAndPort);
-        }
-
-        public void Lost()
-        {
-            log.Debug("Disconnected!");
-        }
-
-        public void PacketDelivery(SequenceId sequenceId, bool wasReceived)
-        {
-            log.Debug("Packet delivered");
-        }
-
-        public void Receive(IInOctetStream stream, SequenceId sequenceId)
-        {
-            log.Debug("Receiving packet...");
+            var info = new ConnectInfo
+            {
+                BriskVersion = new NameVersion
+                {
+                    Version = new Version(1, 0, 0, ""),
+                    Name = "brisk"
+                },
+                SdkVersion = new NameVersion
+                {
+                    Version = new Version(1, 0, 0, ""),
+                    Name = "unknown"
+                },
+                SchemaVersion = new NameVersion
+                {
+                    Version = new Version(1, 0, 0, ""),
+                    Name = "schema"
+                },
+                ApplicationVersion = new NameVersion
+                {
+                    Version = new Version(1, 0, 0, ""),
+                    Name = "brisk"
+                },
+                Payload = new CustomConnectPayload
+                {
+                    Payload = new byte[] { 0x08 },
+                },
+            };
+            connector.Connect(hostnameAndPort, info);
         }
 
         public void Update()
         {
             connector.Update();
-        }
 
-        void IReceiveStream.HandleException(Exception e)
-        {
-            throw new NotImplementedException();
-        }
+            var (stream, sequenceId, canSend) = connector.PreparePacket();
 
-        void IReceiveStream.Lost()
-        {
-            throw new NotImplementedException();
-        }
-
-        void IReceiveStream.OnTimeSynced()
-        {
-        }
-
-        void IReceiveStream.PacketDelivery(SequenceId sequenceId, bool wasReceived)
-        {
-            throw new NotImplementedException();
-        }
-
-        void IReceiveStream.Receive(IInOctetStream stream, SequenceId sequenceId)
-        {
-            throw new NotImplementedException();
-        }
-
-        bool ISendStream.Send(IOutOctetStream stream, SequenceId sequenceId)
-        {
-            log.Debug("Sending packet...");
-            return true;
+            connector.SendPreparedPacket(stream);
         }
     }
 }

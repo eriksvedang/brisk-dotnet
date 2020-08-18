@@ -28,6 +28,8 @@ using Piot.Log;
 
 namespace BriskConsole
 {
+    using System.Threading;
+
     class Program
     {
         static void Main(string[] args)
@@ -42,11 +44,13 @@ namespace BriskConsole
             Console.Error.WriteLine($"Trying to connect to '{hostString}'");
             var target = new ConsoleLogTarget();
             var log = new Log(target);
+            log.LogLevel = LogLevel.Trace;
             var client = new Client(log, hostString);
 
             while (true)
             {
                 client.Update();
+                Thread.Sleep(100);
             }
         }
     }
