@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 
 namespace Piot.Brisk.Stats.In
@@ -32,10 +33,9 @@ namespace Piot.Brisk.Stats.In
         }
     }
 
-
     public class OutStatsCollector : IOutStatsCollector
     {
-        public Queue<OutPacketStatus> queue = new Queue<OutPacketStatus>();
+        public ConcurrentQueue<OutPacketStatus> queue = new ConcurrentQueue<OutPacketStatus>();
         int statsPacketId;
 
         void IOutStatsCollector.PacketSent(long now, int octetCount)
@@ -55,13 +55,12 @@ namespace Piot.Brisk.Stats.In
             const int MaxCount = 127;
             if (queue.Count > MaxCount)
             {
-                queue.Dequeue();
+                queue.TryDequeue(out OutPacketStatus result);
             }
             p.StatsPacketId = statsPacketId++;
 
             queue.Enqueue(p);
         }
-
 
         public bool UpdateLatency(uint sequenceId, long ms)
         {
@@ -101,6 +100,7 @@ namespace Piot.Brisk.Stats.In
         public OutStats GetInfo(int maxCount)
         {
             var wholeArray = queue.ToArray();
+
             var clamp = maxCount;
             if (clamp > wholeArray.Length)
             {
@@ -111,7 +111,7 @@ namespace Piot.Brisk.Stats.In
             Array.Copy(wholeArray, index, copiedPackets, 0, clamp);
             return new OutStats { packetInfo = copiedPackets };
         }
+
     }
 
 }
-
