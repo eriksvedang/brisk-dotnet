@@ -30,6 +30,7 @@ using Piot.Brisk.Connect;
 using Piot.Brook;
 using Piot.Log;
 using Piot.Tend.Client;
+using Flux.Client.Datagram;
 
 namespace BriskConsole
 {
@@ -43,7 +44,8 @@ namespace BriskConsole
         public Client(ILog log, string hostnameAndPort)
         {
             this.log = log;
-            connector = new Connector(log, 30);
+            var port = new UdpClient();
+            connector = new Connector(log, 30, port, true);
             var info = new ConnectInfo
             {
                 BriskVersion = new NameVersion
