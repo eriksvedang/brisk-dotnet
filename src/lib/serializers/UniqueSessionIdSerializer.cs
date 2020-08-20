@@ -6,6 +6,7 @@ namespace Piot.Brisk.Serializers
     {
         public static void Serialize(IOutOctetStream stream, UniqueSessionID sessionId)
         {
+            stream.WriteUint8((byte)sessionId.Value.Length);
             stream.WriteOctets(sessionId.Value);
         }
     }

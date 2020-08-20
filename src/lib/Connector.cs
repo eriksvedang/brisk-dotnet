@@ -49,6 +49,7 @@ namespace Piot.Brisk.Connect
         Idle,
         Challenge,
         TimeSync,
+        ConnectRequest,
         Connected,
         Disconnected
     }
@@ -103,7 +104,10 @@ namespace Piot.Brisk.Connect
 
         public bool syncTimeOnConnect;
 
-        public Connector(ILog log, uint frequency, IPort port, bool useThreads)
+        private uint remoteNonce;
+
+        private ConnectInfo connectInfo;
+        public Connector(ILog log, uint frequency, IPort port, bool useThreads, bool useDebugLogging = false)
         {
             this.log = log;
 
@@ -118,7 +122,7 @@ namespace Piot.Brisk.Connect
             }
 
             connectedPeriodInMs = 1000 / frequency;
-            useDebugLogging = false;
+            this.useDebugLogging = true;
             monotonicClock = monotonicStopwatch;
             incomingPacketBuffer = new PacketBuffer(monotonicClock);
             sessionId = RandomGenerator.RandomUniqueSessionId();
@@ -134,6 +138,7 @@ namespace Piot.Brisk.Connect
             pendingOutSequenceNumber = outgoingSequenceNumber;
             outSequenceNumber = 0;
             challengeNonce = 0;
+            connectInfo = new ConnectInfo();
             tendIn.Clear();
             tendOut.Clear();
             incomingPacketBuffer.Clear();
@@ -150,7 +155,7 @@ namespace Piot.Brisk.Connect
             udpClient.Close();
         }
 
-        public void Connect(string hostAndPort)
+        public void Connect(string hostAndPort, ConnectInfo connectInfo)
         {
             if (hostAndPort == "")
             {
@@ -164,6 +169,7 @@ namespace Piot.Brisk.Connect
             }
 
             Reset();
+            this.connectInfo = connectInfo;
             StartChallenge();
         }
 
@@ -231,14 +237,24 @@ namespace Piot.Brisk.Connect
 
         void SendChallenge(IOutOctetStream outStream)
         {
+            var challenge = new ChallengeRequest(challengeNonce);
             if (useDebugLogging)
             {
-                log.Debug("Sending Challenge!");
+                log.Debug($"Sending Challenge {challenge}");
             }
-
-            var challenge = new ChallengeRequest(challengeNonce, sessionId);
-
             ChallengeRequestSerializer.Serialize(outStream, challenge);
+            lastStateChange = monotonicClock.NowMilliseconds();
+            stateChangeWait = 500;
+        }
+
+        void SendConnectRequest(IOutOctetStream outStream)
+        {
+            var request = new ConnectRequest(remoteNonce, challengeNonce, sessionId, connectInfo);
+            if (useDebugLogging)
+            {
+                log.Debug($"Sending Connect request {request}");
+            }
+            ConnectRequestSerializer.Serialize(outStream, request);
             lastStateChange = monotonicClock.NowMilliseconds();
             stateChangeWait = 500;
         }
@@ -254,7 +270,7 @@ namespace Piot.Brisk.Connect
         {
             if (useDebugLogging)
             {
-                log.Debug($"State:{newState} period:{period}");
+                log.Debug($"State: {newState} period:{period}");
             }
 
             state = newState;
@@ -306,6 +322,10 @@ namespace Piot.Brisk.Connect
                 case ConnectionState.TimeSync:
                     WriteHeader(octetStream, OobMode, outSequenceNumber++, connectionId);
                     SendTimeSync(octetStream);
+                    break;
+                case ConnectionState.ConnectRequest:
+                    WriteHeader(octetStream, OobMode, outSequenceNumber++, 0);
+                    SendConnectRequest(octetStream);
                     break;
                 case ConnectionState.Connected:
                     wasUpdate = WriteUpdatePayload(octetStream);
@@ -420,10 +440,12 @@ namespace Piot.Brisk.Connect
 
             CheckDisconnect();
 
-            if (state == ConnectionState.Connected)
+            switch (state)
             {
-                stateChangeWait = connectedPeriodInMs;
-                lastStateChange = monotonicClock.NowMilliseconds();
+                case ConnectionState.Connected:
+                    stateChangeWait = connectedPeriodInMs;
+                    lastStateChange = monotonicClock.NowMilliseconds();
+                    break;
             }
         }
 
@@ -440,34 +462,41 @@ namespace Piot.Brisk.Connect
 
         void OnChallengeResponse(IInOctetStream stream)
         {
+            var response = ChallengeResponseHeaderDeserializer.Deserialize(stream);
             if (state != ConnectionState.Challenge)
             {
                 return;
             }
-            var nonce = stream.ReadUint32();
-            var assignedConnectionId = stream.ReadUint16();
 
             if (useDebugLogging)
             {
-                log.Debug($"Challenge response {nonce:X} {assignedConnectionId:X}");
+                log.Debug($"Challenge response {response}");
             }
 
-            if (nonce == challengeNonce)
+            if (response.Nonce == challengeNonce)
             {
-                if (useDebugLogging)
-                {
-                    log.Debug($"We have a connection! {assignedConnectionId}");
-                }
-                connectionId = assignedConnectionId;
-                if (syncTimeOnConnect)
-                {
-                    SwitchState(ConnectionState.TimeSync, connectedPeriodInMs);
-                }
-                else
-                {
-                    ConnectedAt = monotonicClock.NowMilliseconds();
-                    SwitchState(ConnectionState.Connected, 100);
-                }
+                remoteNonce = response.RemoteNonce;
+                SwitchState(ConnectionState.ConnectRequest, 100);
+            }
+        }
+
+        void OnConnectResponse(IInOctetStream stream)
+        {
+            var response = ConnectResponseDeserializer.Deserialize(stream);
+
+            if (useDebugLogging)
+            {
+                log.Debug($"We have a connection! {response}");
+            }
+            connectionId = response.ConnectionId;
+            if (syncTimeOnConnect)
+            {
+                SwitchState(ConnectionState.TimeSync, connectedPeriodInMs);
+            }
+            else
+            {
+                ConnectedAt = monotonicClock.NowMilliseconds();
+                SwitchState(ConnectionState.Connected, 100);
             }
         }
 
@@ -524,6 +553,9 @@ namespace Piot.Brisk.Connect
             {
                 case CommandValues.ChallengeResponse:
                     OnChallengeResponse(stream);
+                    break;
+                case CommandValues.ConnectResponse:
+                    OnConnectResponse(stream);
                     break;
                 case CommandValues.TimeSyncResponse:
                     OnTimeSyncResponse(stream);
@@ -629,10 +661,6 @@ namespace Piot.Brisk.Connect
             }
 
             lastValidHeader = monotonicClock.NowMilliseconds();
-            if (useDebugLogging)
-            {
-                log.Info($"Marked valid header...{lastValidHeader}");
-            }
         }
 
         void IPacketReceiver.ReceivePacket(byte[] octets, IPEndPoint fromEndpoint)

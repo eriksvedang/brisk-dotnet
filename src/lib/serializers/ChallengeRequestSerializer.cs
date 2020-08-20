@@ -34,7 +34,6 @@ namespace Piot.Brisk.Serializers
         {
             stream.WriteUint8(CommandValues.ChallengeRequest);
             stream.WriteUint32(cmd.Nonce);
-            UniqueSessionIdSerializer.Serialize(stream, cmd.SessionId);
         }
     }
 }
