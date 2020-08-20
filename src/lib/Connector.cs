@@ -107,6 +107,7 @@ namespace Piot.Brisk.Connect
         private uint remoteNonce;
 
         private ConnectInfo connectInfo;
+
         public Connector(ILog log, uint frequency, IPort port, bool useThreads, bool useDebugLogging = false)
         {
             this.log = log;
