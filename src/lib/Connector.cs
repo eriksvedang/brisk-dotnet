@@ -107,7 +107,8 @@ namespace Piot.Brisk.Connect
         private uint remoteNonce;
 
         private ConnectInfo connectInfo;
-        public Connector(ILog log, uint frequency, bool useDebugLogging = false)
+
+        public Connector(ILog log, uint frequency, IPort port, bool useThreads, bool useDebugLogging = false)
         {
             this.log = log;
 
@@ -126,8 +127,7 @@ namespace Piot.Brisk.Connect
             monotonicClock = monotonicStopwatch;
             incomingPacketBuffer = new PacketBuffer(monotonicClock);
             sessionId = RandomGenerator.RandomUniqueSessionId();
-            var port = new Flux.Client.Datagram.UdpClient();
-            udpClient = new Client(this, port);
+            udpClient = new Client(this, port, useThreads);
             Reset();
         }
 
@@ -423,6 +423,8 @@ namespace Piot.Brisk.Connect
 
         public void Update()
         {
+            udpClient.Update();
+
             var diff = monotonicClock.NowMilliseconds() - lastStateChange;
             if (diff < stateChangeWait)
             {
