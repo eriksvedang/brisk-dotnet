@@ -576,7 +576,7 @@ namespace Piot.Brisk.Connect
                 var deliveryInfo = tendOut.Dequeue();
                 if (useDebugLogging)
                 {
-                    log.Debug($"we have deliveryInfo {deliveryInfo}");
+                    log.Trace($"we have deliveryInfo {deliveryInfo}");
                 }
                 receivedNotifications.Enqueue(deliveryInfo.PacketSequenceId, deliveryInfo.WasDelivered);
                 outStatsCollector.UpdateConfirmation(deliveryInfo.PacketSequenceId.Value, deliveryInfo.WasDelivered);
@@ -588,7 +588,7 @@ namespace Piot.Brisk.Connect
             var info = TendDeserializer.Deserialize(stream);
             if (useDebugLogging)
             {
-                log.Debug($"received tend {info} ");
+                log.Trace($"received tend {info} ");
             }
 
             tendIn.ReceivedToUs(info.PacketId);
