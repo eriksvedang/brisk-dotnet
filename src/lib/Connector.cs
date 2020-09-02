@@ -123,7 +123,7 @@ namespace Piot.Brisk.Connect
             }
 
             connectedPeriodInMs = 1000 / frequency;
-            this.useDebugLogging = true;
+            this.useDebugLogging = useDebugLogging;
             monotonicClock = monotonicStopwatch;
             incomingPacketBuffer = new PacketBuffer(monotonicClock);
             sessionId = RandomGenerator.RandomUniqueSessionId();
