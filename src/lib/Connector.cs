@@ -181,9 +181,6 @@ namespace Piot.Brisk.Connect
             PreparePacket();
             SendPreparedPacket();
             SwitchState(ConnectionState.Disconnected, 0);
-            
-            //udpClient.Close();
-            //Reset();
         }
 
         public long RemoteMonotonicMilliseconds
