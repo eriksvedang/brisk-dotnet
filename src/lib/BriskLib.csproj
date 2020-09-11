@@ -2,13 +2,13 @@
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
     <RootNamespace>Piot.Brisk</RootNamespace>
-    <PackageId>Brisk</PackageId>
+    <PackageId>Coherence.Brisk</PackageId>
     <Version>0.0.0</Version>
     <Authors>Piot</Authors>
     <Copyright>Copyright Peter Bjorklund 2017</Copyright>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <PackageProjectUrl>https://github.com/Piot/brisk-dotnet</PackageProjectUrl>
-    <RepositoryUrl>https://github.com/piot/brisk-dotnet.git</RepositoryUrl>
+    <PackageProjectUrl>https://github.com/coherence/brisk-dotnet</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/coherence/brisk-dotnet.git</RepositoryUrl>
     <PackageIconUrl></PackageIconUrl>
     <PackageReleaseNotes>updated dependencies</PackageReleaseNotes>
     <PackageTags></PackageTags>
@@ -21,6 +21,6 @@
     <PackageReference Include="Tend" Version="1.0.10"></PackageReference>
     <PackageReference Include="SimulationFrame" Version="0.0.1-a2"></PackageReference>
     <PackageReference Include="Brook.Net" Version="1.2.5"></PackageReference>
-    <PackageReference Include="Flux.Net" Version="6.0.1"></PackageReference>
+    <PackageReference Include="Coherence.Flux.Net" Version="7.0.1"></PackageReference>
   </ItemGroup>
 </Project>
