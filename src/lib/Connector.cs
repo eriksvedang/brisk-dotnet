@@ -344,7 +344,7 @@ namespace Piot.Brisk.Connect
             return (streamToReturn, pendingOutSequenceNumber, wasUpdate);
         }
 
-        public void SendPreparedPacket(IOutOctetStream reference)
+        public void SendPreparedPacket()
         {
             var octetsToSend = pendingOutOctetStream.Close();
             var now = monotonicClock.NowMilliseconds();
