@@ -51,6 +51,7 @@ namespace Piot.Brisk.Connect
         TimeSync,
         ConnectRequest,
         Connected,
+        DisconnectRequest,
         Disconnected
     }
 
@@ -153,7 +154,7 @@ namespace Piot.Brisk.Connect
 
         public void Dispose()
         {
-            udpClient.Close();
+            Disconnect();
         }
 
         public void Connect(string hostAndPort, ConnectInfo connectInfo)
@@ -172,6 +173,17 @@ namespace Piot.Brisk.Connect
             Reset();
             this.connectInfo = connectInfo;
             StartChallenge();
+        }
+        
+        public void Disconnect()
+        {
+            SwitchState(ConnectionState.DisconnectRequest, 0);
+            PreparePacket();
+            SendPreparedPacket();
+            SwitchState(ConnectionState.Disconnected, 0);
+            
+            //udpClient.Close();
+            //Reset();
         }
 
         public long RemoteMonotonicMilliseconds
@@ -259,6 +271,18 @@ namespace Piot.Brisk.Connect
             lastStateChange = monotonicClock.NowMilliseconds();
             stateChangeWait = 500;
         }
+        
+        void SendDisconnectRequest(IOutOctetStream outStream)
+        {
+            var request = new DisconnectRequest();
+            if (useDebugLogging)
+            {
+                log.Debug($"Sending disconnect request {request}");
+            }
+            DisconnectRequestSerializer.Serialize(outStream, request);
+            lastStateChange = monotonicClock.NowMilliseconds();
+            stateChangeWait = 500;
+        }
 
         public void SendTimeSync(IOutOctetStream outStream)
         {
@@ -330,6 +354,10 @@ namespace Piot.Brisk.Connect
                     break;
                 case ConnectionState.Connected:
                     wasUpdate = WriteUpdatePayload(octetStream);
+                    break;
+                case ConnectionState.DisconnectRequest:
+                    WriteHeader(octetStream, OobMode, outSequenceNumber++, connectionId);
+                    SendDisconnectRequest(octetStream);
                     break;
                 case ConnectionState.Disconnected:
                     break;
