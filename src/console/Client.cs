@@ -82,7 +82,7 @@ namespace BriskConsole
 
             var (stream, sequenceId, canSend) = connector.PreparePacket();
 
-            connector.SendPreparedPacket(stream);
+            connector.SendPreparedPacket();
         }
     }
 }
