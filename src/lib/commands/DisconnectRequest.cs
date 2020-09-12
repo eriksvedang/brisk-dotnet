@@ -27,7 +27,7 @@ namespace Piot.Brisk.Commands
 {
     public class DisconnectRequest
     {
-        public string ToString()
+        public override string ToString()
         {
             return $"disconnect request";
         }
