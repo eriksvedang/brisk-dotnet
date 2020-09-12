@@ -174,7 +174,7 @@ namespace Piot.Brisk.Connect
             this.connectInfo = connectInfo;
             StartChallenge();
         }
-        
+
         public void Disconnect()
         {
             SwitchState(ConnectionState.DisconnectRequest, 0);
@@ -268,7 +268,7 @@ namespace Piot.Brisk.Connect
             lastStateChange = monotonicClock.NowMilliseconds();
             stateChangeWait = 500;
         }
-        
+
         void SendDisconnectRequest(IOutOctetStream outStream)
         {
             var request = new DisconnectRequest();
