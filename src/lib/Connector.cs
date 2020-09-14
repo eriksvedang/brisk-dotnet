@@ -24,6 +24,8 @@ SOFTWARE.
 
 */
 
+using System.Net.Sockets;
+
 namespace Piot.Brisk.Connect
 {
     using System.Diagnostics;
@@ -720,6 +722,13 @@ namespace Piot.Brisk.Connect
         void IPacketReceiver.HandleException(Exception e)
         {
             log.Warning(e.ToString());
+
+            if (e is SocketException se && se.SocketErrorCode == SocketError.ConnectionReset)
+            {
+                // Suppress infinite warning for "System.Net.Sockets.SocketException (0x80004005): An existing connection was forcibly closed by the remote host."
+                SwitchState(ConnectionState.Disconnected, 9999);
+            }
+
             //receiveStream.HandleException(e);
         }
         public ConnectionState ConnectionState => state;
