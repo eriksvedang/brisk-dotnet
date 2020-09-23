@@ -111,7 +111,7 @@ namespace Piot.Brisk.Connect
 
         private ConnectInfo connectInfo;
 
-        public Connector(ILog log, uint frequency, IPort port, bool useThreads, bool useDebugLogging = false)
+        public Connector(ILog log, uint frequency, IPort port, bool useDebugLogging = false)
         {
             this.log = log;
 
@@ -130,7 +130,8 @@ namespace Piot.Brisk.Connect
             monotonicClock = monotonicStopwatch;
             incomingPacketBuffer = new PacketBuffer(monotonicClock);
             sessionId = RandomGenerator.RandomUniqueSessionId();
-            udpClient = new Client(this, port, useThreads);
+            udpClient = new Client(this, port);
+            udpClient.Start();
             Reset();
         }
 
@@ -182,6 +183,7 @@ namespace Piot.Brisk.Connect
             SwitchState(ConnectionState.DisconnectRequest, 0);
             PreparePacket();
             SendPreparedPacket();
+            udpClient.Stop();
             SwitchState(ConnectionState.Disconnected, 0);
         }
 
