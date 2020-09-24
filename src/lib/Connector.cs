@@ -61,6 +61,7 @@ namespace Piot.Brisk.Connect
     {
         const byte NormalMode = 0x01;
         const byte OobMode = 0x02;
+        const int MaxChallengeAttempts = 3;
 
         ConnectionState state = ConnectionState.Idle;
         Client udpClient;
@@ -102,6 +103,8 @@ namespace Piot.Brisk.Connect
         private SimpleStats simpleInStats;
         private SimpleStats simpleOutStats;
         private long lastStatsUpdate;
+
+        private int remainingChallengeAttempts = 0;
 
         public float disconnectTimeout = 3;
 
@@ -150,6 +153,7 @@ namespace Piot.Brisk.Connect
             lastStateChange = monotonicClock.NowMilliseconds();
             lastValidHeader = monotonicClock.NowMilliseconds();
             lastSentPackets = monotonicClock.NowMilliseconds();
+            remainingChallengeAttempts = MaxChallengeAttempts;
         }
 
         public bool MustSendPacket => TimeHasPassedSinceLastPacket;
@@ -414,6 +418,7 @@ namespace Piot.Brisk.Connect
         {
             challengeNonce = RandomGenerator.RandomUInt();
             SwitchState(ConnectionState.Challenge, 0);
+            --remainingChallengeAttempts;
         }
 
         void CheckDisconnect()
@@ -510,6 +515,18 @@ namespace Piot.Brisk.Connect
             {
                 remoteNonce = response.RemoteNonce;
                 SwitchState(ConnectionState.ConnectRequest, 100);
+            }
+            else
+            {
+                if (remainingChallengeAttempts > 0)
+                {
+                    StartChallenge();
+                }
+                else
+                {
+                    udpClient.Stop();
+                    SwitchState(ConnectionState.Disconnected, 0);
+                }
             }
         }
 
