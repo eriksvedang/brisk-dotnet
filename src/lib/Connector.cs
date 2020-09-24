@@ -184,6 +184,8 @@ namespace Piot.Brisk.Connect
             PreparePacket();
             SendPreparedPacket();
             udpClient.Stop();
+            ReceivedNotifications.Clear();
+            IncomingPackets.Clear();
             SwitchState(ConnectionState.Disconnected, 0);
         }
 
