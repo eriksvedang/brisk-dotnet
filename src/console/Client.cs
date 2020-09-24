@@ -45,7 +45,7 @@ namespace BriskConsole
         {
             this.log = log;
             var port = new UdpClient();
-            connector = new Connector(log, 30, port, true);
+            connector = new Connector(log, 30, port);
             var info = new ConnectInfo
             {
                 BriskVersion = new NameVersion

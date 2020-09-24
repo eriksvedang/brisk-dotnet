@@ -37,7 +37,10 @@ namespace Piot.Brisk
 
         public void Clear()
         {
-            packets.Clear();
+            lock (packets)
+            {
+                packets.Clear();
+            }
         }
 
         public void AddPacket(SequenceId sequenceId, byte[] octets)
