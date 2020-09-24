@@ -131,7 +131,6 @@ namespace Piot.Brisk.Connect
             incomingPacketBuffer = new PacketBuffer(monotonicClock);
             sessionId = RandomGenerator.RandomUniqueSessionId();
             udpClient = new Client(this, port);
-            udpClient.Start();
             Reset();
         }
 
@@ -166,6 +165,8 @@ namespace Piot.Brisk.Connect
             {
                 return;
             }
+
+            udpClient.Start();
 
             if (lastHost != hostAndPort)
             {
