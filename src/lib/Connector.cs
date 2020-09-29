@@ -323,6 +323,7 @@ namespace Piot.Brisk.Connect
                 return true;
             }
 
+            WriteHeader(octetStream, OobMode, outgoingSequenceNumber.Value, connectionId);
             WritePing(octetStream);
             return false;
         }
